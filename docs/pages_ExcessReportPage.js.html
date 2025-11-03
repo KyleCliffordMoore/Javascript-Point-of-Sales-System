@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: pages/ExcessReportPage.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: pages/ExcessReportPage.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * ExcessReportPage Component
+ *
+ * This component generates a report of items whose total revenue is less than a specified amount.
+ * It fetches the report data from the backend API, filters it based on user input, and displays
+ * the results in a table format. The component also handles localization for the displayed text.
+ */
+
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useTranslate } from "../contexts/TranslationContext"; // Adjust the import path as needed
+import styles from "../styles/AllManager.module.css";
+
+const API_URL = "/api";
+
+/**
+ * Function to fetch the sales report data from the backend.
+ *
+ * @param {string} startTime - The start date &amp; time for the report.
+ * @param {string} endTime - The end date &amp; time for the report.
+ * @returns {Object} - The sales report data or an error message if the fetch fails.
+ */
+async function doSalesReportQuery(startTime, endTime) {
+  try {
+    const response = await fetch(`${API_URL}/doSalesReportQuery`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ startTime, endTime }),
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch sales report.");
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error(error);
+    return { error: error.message };
+  }
+}
+
+/**
+ * ExcessReportPage Component
+ */
+const ExcessReportPage = () => {
+  const [startTime, setStartTime] = useState("");
+  const [endTime, setEndTime] = useState("");
+  const [priceThreshold, setPriceThreshold] = useState("");
+  const [reportData, setReportData] = useState([]);
+  const [error, setError] = useState(null);
+  const { translate } = useTranslate();
+  const navigate = useNavigate();
+
+  const [labels, setLabels] = useState({
+    startDateTime: "Start Date &amp; Time",
+    endDateTime: "End Date &amp; Time",
+    priceThreshold: "Price Threshold",
+    generateReport: "Generate Report",
+    item: "Item",
+    count: "Count",
+    totalRevenue: "Total Revenue",
+    back: "Back",
+    errorFetching: "Failed to fetch sales report.",
+    errorInvalidInputs: "Please enter valid inputs.",
+  });
+
+  /**
+   * Loads translated labels on component mount.
+   */
+  useEffect(() => {
+    const loadTranslations = async () => {
+      const translatedLabels = {
+        startDateTime: await translate("Start Date &amp; Time"),
+        endDateTime: await translate("End Date &amp; Time"),
+        priceThreshold: await translate("Price Threshold"),
+        generateReport: await translate("Generate Report"),
+        item: await translate("Item"),
+        count: await translate("Count"),
+        totalRevenue: await translate("Total Revenue"),
+        back: await translate("Back"),
+        errorFetching: await translate("Failed to fetch sales report."),
+        errorInvalidInputs: await translate("Please enter valid inputs."),
+      };
+      setLabels(translatedLabels);
+    };
+
+    loadTranslations();
+  }, [translate]);
+
+  /**
+   * Navigates to the manager selection page.
+   */
+  const navigateToManagerSelection = () => {
+    navigate("/managerselection");
+  };
+
+  /**
+   * Handles report generation with filtering logic for price threshold.
+   */
+  const handleGenerateReport = async () => {
+    if (!startTime || !endTime || !priceThreshold) {
+      alert(labels.errorInvalidInputs);
+      return;
+    }
+
+    const result = await doSalesReportQuery(startTime, endTime);
+    if (result.error) {
+      setError(labels.errorFetching);
+    } else {
+      // Filter items with total revenue below the specified price threshold
+      const filteredData = result.filter((row) => row.total_revenue &lt; parseFloat(priceThreshold));
+      setReportData(filteredData);
+      setError(null);
+    }
+  };
+
+  return (
+    &lt;div className={styles.container}>
+      &lt;div className={styles.inputGroup}>
+        &lt;label className={styles.inputLabel}>
+          {labels.startDateTime}:
+          &lt;input
+            className={styles.inputField}
+            type="datetime-local"
+            value={startTime}
+            onChange={(e) => setStartTime(e.target.value)}
+          />
+        &lt;/label>
+        &lt;label className={styles.inputLabel}>
+          {labels.endDateTime}:
+          &lt;input
+            className={styles.inputField}
+            type="datetime-local"
+            value={endTime}
+            onChange={(e) => setEndTime(e.target.value)}
+          />
+        &lt;/label>
+        &lt;label className={styles.inputLabel}>
+          {labels.priceThreshold}:
+          &lt;input
+            className={styles.inputField}
+            type="number"
+            value={priceThreshold}
+            onChange={(e) => setPriceThreshold(e.target.value)}
+          />
+        &lt;/label>
+        &lt;button className={styles.button} onClick={handleGenerateReport}>
+          {labels.generateReport}
+        &lt;/button>
+      &lt;/div>
+
+      {error &amp;&amp; &lt;p className={styles.errorMessage}>Error: {error}&lt;/p>}
+
+      &lt;table className={styles.table}>
+        &lt;thead>
+          &lt;tr>
+            &lt;th>{labels.item}&lt;/th>
+            &lt;th>{labels.count}&lt;/th>
+            &lt;th>{labels.totalRevenue}&lt;/th>
+          &lt;/tr>
+        &lt;/thead>
+        &lt;tbody>
+          {reportData.map((row, index) => (
+            &lt;tr key={index}>
+              &lt;td>{row.item}&lt;/td>
+              &lt;td>{row.count}&lt;/td>
+              &lt;td>{row.total_revenue}&lt;/td>
+            &lt;/tr>
+          ))}
+        &lt;/tbody>
+      &lt;/table>
+      &lt;button className={styles.button} onClick={navigateToManagerSelection}>
+        {labels.back}
+      &lt;/button>
+    &lt;/div>
+  );
+};
+
+export default ExcessReportPage;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-FasterTranslationContext.html">FasterTranslationContext</a></li><li><a href="module-ShoppingCartContext.html">ShoppingCartContext</a></li></ul><h3>Global</h3><ul><li><a href="global.html#API_URL">API_URL</a></li><li><a href="global.html#AddEmployee">AddEmployee</a></li><li><a href="global.html#App">App</a></li><li><a href="global.html#AppetizerSlice">AppetizerSlice</a></li><li><a href="global.html#CashierButton">CashierButton</a></li><li><a href="global.html#CashierLabel">CashierLabel</a></li><li><a href="global.html#CashierPage">CashierPage</a></li><li><a href="global.html#CheckoutButton">CheckoutButton</a></li><li><a href="global.html#CompletedOrderPage">CompletedOrderPage</a></li><li><a href="global.html#DrinkAndAppetizerButton">DrinkAndAppetizerButton</a></li><li><a href="global.html#DrinkEditor">DrinkEditor</a></li><li><a href="global.html#DrinkSlice">DrinkSlice</a></li><li><a href="global.html#DrinkSubText">DrinkSubText</a></li><li><a href="global.html#EditEmployee">EditEmployee</a></li><li><a href="global.html#EmailReceiptPage">EmailReceiptPage</a></li><li><a href="global.html#EntreeButton">EntreeButton</a></li><li><a href="global.html#EntreeSlice">EntreeSlice</a></li><li><a href="global.html#ExcessReportPage">ExcessReportPage</a></li><li><a href="global.html#GraphsPage">GraphsPage</a></li><li><a href="global.html#Histogram">Histogram</a></li><li><a href="global.html#Home">Home</a></li><li><a href="global.html#InventoryAdd">InventoryAdd</a></li><li><a href="global.html#InventoryEdit">InventoryEdit</a></li><li><a href="global.html#InventoryItemSlice">InventoryItemSlice</a></li><li><a href="global.html#InventoryPage">InventoryPage</a></li><li><a href="global.html#ItemAdd">ItemAdd</a></li><li><a href="global.html#ItemCountPage">ItemCountPage</a></li><li><a href="global.html#ItemEdit">ItemEdit</a></li><li><a href="global.html#ItemPage">ItemPage</a></li><li><a href="global.html#ItemSlice">ItemSlice</a></li><li><a href="global.html#KioskAppetizer">KioskAppetizer</a></li><li><a href="global.html#Layout">Layout</a></li><li><a href="global.html#Login">Login</a></li><li><a href="global.html#ManagerOrEmployee">ManagerOrEmployee</a></li><li><a href="global.html#ManagerSelection">ManagerSelection</a></li><li><a href="global.html#MealButton">MealButton</a></li><li><a href="global.html#MealSlice">MealSlice</a></li><li><a href="global.html#MealSubText">MealSubText</a></li><li><a href="global.html#Menu">Menu</a></li><li><a href="global.html#OptionsBar">OptionsBar</a></li><li><a href="global.html#OrderDisplay">OrderDisplay</a></li><li><a href="global.html#QueryDatabase">QueryDatabase</a></li><li><a href="global.html#ReceiptEdit">ReceiptEdit</a></li><li><a href="global.html#ReceiptPage">ReceiptPage</a></li><li><a href="global.html#ReceiptSlice">ReceiptSlice</a></li><li><a href="global.html#ReceiptView">ReceiptView</a></li><li><a href="global.html#RestockReportPage">RestockReportPage</a></li><li><a href="global.html#SalesReportPage">SalesReportPage</a></li><li><a href="global.html#SelectEntreePage1">SelectEntreePage1</a></li><li><a href="global.html#SelectEntreePage2">SelectEntreePage2</a></li><li><a href="global.html#SelectEntreePage3">SelectEntreePage3</a></li><li><a href="global.html#SelectSidePage">SelectSidePage</a></li><li><a href="global.html#ShoppingCartPage">ShoppingCartPage</a></li><li><a href="global.html#SideButton">SideButton</a></li><li><a href="global.html#SideSlice">SideSlice</a></li><li><a href="global.html#Sidebar">Sidebar</a></li><li><a href="global.html#TimeProvider">TimeProvider</a></li><li><a href="global.html#TranslationProvider">TranslationProvider</a></li><li><a href="global.html#WeatherProvider">WeatherProvider</a></li><li><a href="global.html#XZReportPage">XZReportPage</a></li><li><a href="global.html#completeOrder">completeOrder</a></li><li><a href="global.html#container">container</a></li><li><a href="global.html#doSalesReportQuery">doSalesReportQuery</a></li><li><a href="global.html#fetchAppetizers">fetchAppetizers</a></li><li><a href="global.html#fetchDrinks">fetchDrinks</a></li><li><a href="global.html#fetchKioskHomeData">fetchKioskHomeData</a></li><li><a href="global.html#fetchMeals">fetchMeals</a></li><li><a href="global.html#fetchMenuItems">fetchMenuItems</a></li><li><a href="global.html#fetchPendingOrders">fetchPendingOrders</a></li><li><a href="global.html#fetchRestockData">fetchRestockData</a></li><li><a href="global.html#gatherReportData">gatherReportData</a></li><li><a href="global.html#getItemCounts">getItemCounts</a></li><li><a href="global.html#getLastZReportDate">getLastZReportDate</a></li><li><a href="global.html#googleLogin">googleLogin</a></li><li><a href="global.html#loadTranslations">loadTranslations</a></li><li><a href="global.html#login">login</a></li><li><a href="global.html#processOrder">processOrder</a></li><li><a href="global.html#reportWebVitals">reportWebVitals</a></li><li><a href="global.html#root">root</a></li><li><a href="global.html#translateStringstranslatesthetext">translateStrings translates the text</a></li><li><a href="global.html#useTime">useTime</a></li><li><a href="global.html#useTranslate">useTranslate</a></li><li><a href="global.html#useWeatherContext">useWeatherContext</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Wed Dec 04 2024 23:42:06 GMT-0600 (Central Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

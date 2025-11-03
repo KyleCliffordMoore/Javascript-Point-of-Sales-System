@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: contexts/FasterTranslationContext.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: contexts/FasterTranslationContext.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * FasterTranslationContext.js
+ * 
+ * This file provides a context and a custom hook for managing translations within the application.
+ * It includes caching functionality to reduce the number of API calls and improve performance.
+ * The translation is performed for the current language, and the translations are stored in a cache.
+ * 
+ * Features:
+ * - Translation context to manage language settings and translations.
+ * - Caching to store translations and avoid redundant API calls.
+ * - Supports batch translation requests to improve efficiency.
+ * 
+ * @module FasterTranslationContext
+ */
+
+import React, { createContext, useContext, useState, useCallback } from 'react';
+import axios from 'axios';
+
+// Create the Context
+const FasterTranslationContext = createContext();
+
+/**
+ * Custom hook to access the translation context.
+ * Provides access to translation functions and language settings.
+ * 
+ * @returns {Object} The context containing `translate`, `setLanguage`, and `currentLanguage`.
+ * @example
+ * const { translate, setLanguage, currentLanguage } = useFasterTranslate();
+ */
+export const useFasterTranslate = () => useContext(FasterTranslationContext);
+
+/**
+ * Translation Provider component that manages language settings and translation caching.
+ * Wraps the application with the translation context to provide access to translation functions.
+ * 
+ * @param {Object} props - The component props.
+ * @param {JSX.Element} props.children - The children components that will be wrapped by the provider.
+ * @returns {JSX.Element} The rendered provider component with the context.
+ * 
+ * @example
+ * &lt;FasterTranslationProvider>
+ *   &lt;App />
+ * &lt;/FasterTranslationProvider>
+ */
+export const FasterTranslationProvider = ({ children }) => {
+  // State to manage the current language of the application
+  const [currentLanguage, setCurrentLanguage] = useState('en');
+
+  // State to manage the translation cache, storing translations to avoid redundant API calls
+  const [translationCache, setTranslationCache] = useState({});
+
+  /**
+   * Sets the current language of the application and clears the translation cache.
+   * 
+   * @param {string} lang - The language code to set as the current language (e.g., 'en', 'es').
+   * @returns {void}
+   */
+  const setLanguage = (lang) => {
+    setCurrentLanguage(lang);
+    setTranslationCache({}); // Clear the cache when language changes
+  };
+
+  /**
+   * Translates one or more texts into the current language, using the translation cache and batch API calls.
+   * If the translation is already cached, it returns the cached value.
+   * 
+   * @param {string|Array&lt;string>} texts - The text(s) to translate.
+   * @returns {Promise&lt;string|Array&lt;string>>} - The translated text(s), either a single string or an array of strings.
+   */
+  const translate = useCallback(
+    async (texts) => {
+      // If the current language is 'en', no translation is needed, return the original text(s)
+      if (currentLanguage === 'en') return texts;
+
+      const textsArray = Array.isArray(texts) ? texts : [texts];
+
+      // Filter out texts that are already in the cache
+      const untranslatedTexts = textsArray.filter((text) => !translationCache[text]);
+
+      if (untranslatedTexts.length > 0) {
+        try {
+          // Make a single API call to translate all untranslated texts
+          const response = await axios.post('/api/doTranslateBatch', {
+            texts: untranslatedTexts,
+            targetLanguage: currentLanguage,
+          });
+
+          const translationsArray = response.data.translations;
+
+          // Map untranslatedTexts to translationsArray and update the cache
+          const newTranslations = {};
+          untranslatedTexts.forEach((text, index) => {
+            newTranslations[text] = translationsArray[index];
+          });
+
+          // Update the cache with new translations
+          setTranslationCache((prevCache) => ({ ...prevCache, ...newTranslations }));
+        } catch (error) {
+          console.error('Translation error:', error);
+          // Fallback to using the original text in case of an error
+          const fallbackTranslations = {};
+          untranslatedTexts.forEach((text) => {
+            fallbackTranslations[text] = text;
+          });
+          setTranslationCache((prevCache) => ({ ...prevCache, ...fallbackTranslations }));
+        }
+      }
+
+      // Retrieve translations from the cache or use the original text if not cached
+      const translations = textsArray.map((text) => translationCache[text] || text);
+
+      // Return a single string if only one text was passed, or an array if multiple texts
+      return Array.isArray(texts) ? translations : translations[0];
+    },
+    [currentLanguage, translationCache] // Dependencies to re-run the function if language or cache changes
+  );
+
+  return (
+    &lt;FasterTranslationContext.Provider value={{ translate, setLanguage, currentLanguage }}>
+      {children}
+    &lt;/FasterTranslationContext.Provider>
+  );
+};
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-FasterTranslationContext.html">FasterTranslationContext</a></li><li><a href="module-ShoppingCartContext.html">ShoppingCartContext</a></li></ul><h3>Global</h3><ul><li><a href="global.html#API_URL">API_URL</a></li><li><a href="global.html#AddEmployee">AddEmployee</a></li><li><a href="global.html#App">App</a></li><li><a href="global.html#AppetizerSlice">AppetizerSlice</a></li><li><a href="global.html#CashierButton">CashierButton</a></li><li><a href="global.html#CashierLabel">CashierLabel</a></li><li><a href="global.html#CashierPage">CashierPage</a></li><li><a href="global.html#CheckoutButton">CheckoutButton</a></li><li><a href="global.html#CompletedOrderPage">CompletedOrderPage</a></li><li><a href="global.html#DrinkAndAppetizerButton">DrinkAndAppetizerButton</a></li><li><a href="global.html#DrinkEditor">DrinkEditor</a></li><li><a href="global.html#DrinkSlice">DrinkSlice</a></li><li><a href="global.html#DrinkSubText">DrinkSubText</a></li><li><a href="global.html#EditEmployee">EditEmployee</a></li><li><a href="global.html#EmailReceiptPage">EmailReceiptPage</a></li><li><a href="global.html#EntreeButton">EntreeButton</a></li><li><a href="global.html#EntreeSlice">EntreeSlice</a></li><li><a href="global.html#ExcessReportPage">ExcessReportPage</a></li><li><a href="global.html#GraphsPage">GraphsPage</a></li><li><a href="global.html#Histogram">Histogram</a></li><li><a href="global.html#Home">Home</a></li><li><a href="global.html#InventoryAdd">InventoryAdd</a></li><li><a href="global.html#InventoryEdit">InventoryEdit</a></li><li><a href="global.html#InventoryItemSlice">InventoryItemSlice</a></li><li><a href="global.html#InventoryPage">InventoryPage</a></li><li><a href="global.html#ItemAdd">ItemAdd</a></li><li><a href="global.html#ItemCountPage">ItemCountPage</a></li><li><a href="global.html#ItemEdit">ItemEdit</a></li><li><a href="global.html#ItemPage">ItemPage</a></li><li><a href="global.html#ItemSlice">ItemSlice</a></li><li><a href="global.html#KioskAppetizer">KioskAppetizer</a></li><li><a href="global.html#Layout">Layout</a></li><li><a href="global.html#Login">Login</a></li><li><a href="global.html#ManagerOrEmployee">ManagerOrEmployee</a></li><li><a href="global.html#ManagerSelection">ManagerSelection</a></li><li><a href="global.html#MealButton">MealButton</a></li><li><a href="global.html#MealSlice">MealSlice</a></li><li><a href="global.html#MealSubText">MealSubText</a></li><li><a href="global.html#Menu">Menu</a></li><li><a href="global.html#OptionsBar">OptionsBar</a></li><li><a href="global.html#OrderDisplay">OrderDisplay</a></li><li><a href="global.html#QueryDatabase">QueryDatabase</a></li><li><a href="global.html#ReceiptEdit">ReceiptEdit</a></li><li><a href="global.html#ReceiptPage">ReceiptPage</a></li><li><a href="global.html#ReceiptSlice">ReceiptSlice</a></li><li><a href="global.html#ReceiptView">ReceiptView</a></li><li><a href="global.html#RestockReportPage">RestockReportPage</a></li><li><a href="global.html#SalesReportPage">SalesReportPage</a></li><li><a href="global.html#SelectEntreePage1">SelectEntreePage1</a></li><li><a href="global.html#SelectEntreePage2">SelectEntreePage2</a></li><li><a href="global.html#SelectEntreePage3">SelectEntreePage3</a></li><li><a href="global.html#SelectSidePage">SelectSidePage</a></li><li><a href="global.html#ShoppingCartPage">ShoppingCartPage</a></li><li><a href="global.html#SideButton">SideButton</a></li><li><a href="global.html#SideSlice">SideSlice</a></li><li><a href="global.html#Sidebar">Sidebar</a></li><li><a href="global.html#TimeProvider">TimeProvider</a></li><li><a href="global.html#TranslationProvider">TranslationProvider</a></li><li><a href="global.html#WeatherProvider">WeatherProvider</a></li><li><a href="global.html#XZReportPage">XZReportPage</a></li><li><a href="global.html#completeOrder">completeOrder</a></li><li><a href="global.html#container">container</a></li><li><a href="global.html#doSalesReportQuery">doSalesReportQuery</a></li><li><a href="global.html#fetchAppetizers">fetchAppetizers</a></li><li><a href="global.html#fetchDrinks">fetchDrinks</a></li><li><a href="global.html#fetchKioskHomeData">fetchKioskHomeData</a></li><li><a href="global.html#fetchMeals">fetchMeals</a></li><li><a href="global.html#fetchMenuItems">fetchMenuItems</a></li><li><a href="global.html#fetchPendingOrders">fetchPendingOrders</a></li><li><a href="global.html#fetchRestockData">fetchRestockData</a></li><li><a href="global.html#gatherReportData">gatherReportData</a></li><li><a href="global.html#getItemCounts">getItemCounts</a></li><li><a href="global.html#getLastZReportDate">getLastZReportDate</a></li><li><a href="global.html#googleLogin">googleLogin</a></li><li><a href="global.html#loadTranslations">loadTranslations</a></li><li><a href="global.html#login">login</a></li><li><a href="global.html#processOrder">processOrder</a></li><li><a href="global.html#reportWebVitals">reportWebVitals</a></li><li><a href="global.html#root">root</a></li><li><a href="global.html#translateStringstranslatesthetext">translateStrings translates the text</a></li><li><a href="global.html#useTime">useTime</a></li><li><a href="global.html#useTranslate">useTranslate</a></li><li><a href="global.html#useWeatherContext">useWeatherContext</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Wed Dec 04 2024 23:42:06 GMT-0600 (Central Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: contexts/OptionsBar.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: contexts/OptionsBar.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * @file OptionsBar.js
+ * @description It displays the current time, weather, and a language selector for translation functionality.
+ * The component uses multiple contexts for managing translations, time, and weather.
+ */
+
+import React, { useState, useEffect } from "react";
+import { useTranslate } from "./TranslationContext";
+import { useFasterTranslate } from "./FasterTranslationContext";
+import { useTime } from "./TimeProvider";
+import { useWeatherContext } from "./WeatherProvider";
+
+/**
+ * OptionsBar Component
+ * 
+ * @returns {JSX.Element} A bar displaying current time, weather, and a language selector.
+ */
+const OptionsBar = () => {
+  const { currentTime, timeLoading } = useTime();
+  const { currentWeather, weatherLoading } = useWeatherContext();
+
+  const { setLanguage: setLanguageOld } = useTranslate();
+  const { setLanguage: setLanguageFast, translate, currentLanguage } = useFasterTranslate();
+
+  const [dropdownVisible, setDropdownVisible] = useState(false);
+  const [translatedText, setTranslatedText] = useState({
+    selectLanguage: "Select Language",
+    timeUnavailable: "Time not available",
+    weatherUnavailable: "Weather not available",
+    translatedWeather: "",
+  });
+
+  const languages = [
+    { code: "af", label: "Afrikaans" },
+    { code: "sq", label: "Albanian" },
+    { code: "am", label: "Amharic" },
+    { code: "ar", label: "Arabic" },
+    { code: "hy", label: "Armenian" },
+    { code: "az", label: "Azerbaijani" },
+    { code: "eu", label: "Basque" },
+    { code: "be", label: "Belarusian" },
+    { code: "bn", label: "Bengali" },
+    { code: "bs", label: "Bosnian" },
+    { code: "bg", label: "Bulgarian" },
+    { code: "ca", label: "Catalan" },
+    { code: "ceb", label: "Cebuano" },
+    { code: "zh", label: "Chinese" },
+    { code: "co", label: "Corsican" },
+    { code: "hr", label: "Croatian" },
+    { code: "cs", label: "Czech" },
+    { code: "da", label: "Danish" },
+    { code: "nl", label: "Dutch" },
+    { code: "en", label: "English" },
+    { code: "eo", label: "Esperanto" },
+    { code: "et", label: "Estonian" },
+    { code: "fi", label: "Finnish" },
+    { code: "fr", label: "French" },
+    { code: "fy", label: "Frisian" },
+    { code: "gl", label: "Galician" },
+    { code: "ka", label: "Georgian" },
+    { code: "de", label: "German" },
+    { code: "el", label: "Greek" },
+    { code: "gu", label: "Gujarati" },
+    { code: "ht", label: "Haitian Creole" },
+    { code: "ha", label: "Hausa" },
+    { code: "haw", label: "Hawaiian" },
+    { code: "he", label: "Hebrew" },
+    { code: "hi", label: "Hindi" },
+    { code: "hmn", label: "Hmong" },
+    { code: "hu", label: "Hungarian" },
+    { code: "is", label: "Icelandic" },
+    { code: "ig", label: "Igbo" },
+    { code: "id", label: "Indonesian" },
+    { code: "ga", label: "Irish" },
+    { code: "it", label: "Italian" },
+    { code: "ja", label: "Japanese" },
+    { code: "jv", label: "Javanese" },
+    { code: "kn", label: "Kannada" },
+    { code: "kk", label: "Kazakh" },
+    { code: "km", label: "Khmer" },
+    { code: "rw", label: "Kinyarwanda" },
+    { code: "ko", label: "Korean" },
+    { code: "ku", label: "Kurdish" },
+    { code: "ky", label: "Kyrgyz" },
+    { code: "lo", label: "Lao" },
+    { code: "la", label: "Latin" },
+    { code: "lv", label: "Latvian" },
+    { code: "lt", label: "Lithuanian" },
+    { code: "lb", label: "Luxembourgish" },
+    { code: "mk", label: "Macedonian" },
+    { code: "mg", label: "Malagasy" },
+    { code: "ms", label: "Malay" },
+    { code: "ml", label: "Malayalam" },
+    { code: "mt", label: "Maltese" },
+    { code: "mi", label: "Maori" },
+    { code: "mr", label: "Marathi" },
+    { code: "mn", label: "Mongolian" },
+    { code: "my", label: "Myanmar (Burmese)" },
+    { code: "ne", label: "Nepali" },
+    { code: "no", label: "Norwegian" },
+    { code: "ny", label: "Nyanja (Chichewa)" },
+    { code: "or", label: "Odia (Oriya)" },
+    { code: "ps", label: "Pashto" },
+    { code: "fa", label: "Persian" },
+    { code: "pl", label: "Polish" },
+    { code: "pt", label: "Portuguese" },
+    { code: "pa", label: "Punjabi" },
+    { code: "ro", label: "Romanian" },
+    { code: "ru", label: "Russian" },
+    { code: "sm", label: "Samoan" },
+    { code: "gd", label: "Scots Gaelic" },
+    { code: "sr", label: "Serbian" },
+    { code: "st", label: "Sesotho" },
+    { code: "sn", label: "Shona" },
+    { code: "sd", label: "Sindhi" },
+    { code: "si", label: "Sinhala (Sinhalese)" },
+    { code: "sk", label: "Slovak" },
+    { code: "sl", label: "Slovenian" },
+    { code: "so", label: "Somali" },
+    { code: "es", label: "Spanish" },
+    { code: "su", label: "Sundanese" },
+    { code: "sw", label: "Swahili" },
+    { code: "sv", label: "Swedish" },
+    { code: "tl", label: "Tagalog (Filipino)" },
+    { code: "tg", label: "Tajik" },
+    { code: "ta", label: "Tamil" },
+    { code: "tt", label: "Tatar" },
+    { code: "te", label: "Telugu" },
+    { code: "th", label: "Thai" },
+    { code: "tr", label: "Turkish" },
+    { code: "tk", label: "Turkmen" },
+    { code: "uk", label: "Ukrainian" },
+    { code: "ur", label: "Urdu" },
+    { code: "ug", label: "Uyghur" },
+    { code: "uz", label: "Uzbek" },
+    { code: "vi", label: "Vietnamese" },
+    { code: "cy", label: "Welsh" },
+    { code: "xh", label: "Xhosa" },
+    { code: "yi", label: "Yiddish" },
+    { code: "yo", label: "Yoruba" },
+    { code: "zu", label: "Zulu" },
+  ];
+
+  /**
+   * Stores the language the user wants text translated to in the translation context then 
+   * translates all text on the website to the specified language
+   *  
+   * @param {*} code The 2 letter code for the language the user wants text to be translated to
+   */
+  const handleLanguageChange = (code) => {
+    setLanguageOld(code); // Update language in TranslationContext
+    setLanguageFast(code); // Update language in FasterTranslationContext
+    setDropdownVisible(false); // Close the dropdown after selection
+  };
+
+  useEffect(() => {
+    const loadTranslations = async () => {
+      const [selectLanguage, timeUnavailable, weatherUnavailable] = await translate([
+        "Select Language",
+        "Time not available",
+        "Weather not available",
+      ]);
+      const translatedWeather = currentWeather
+        ? await translate(currentWeather)
+        : weatherUnavailable;
+
+      setTranslatedText({
+        selectLanguage,
+        timeUnavailable,
+        weatherUnavailable,
+        translatedWeather,
+      });
+    };
+
+    loadTranslations();
+  }, [translate, currentWeather]);
+
+  if (timeLoading || weatherLoading) {
+    return &lt;div className="time-bar">{translatedText.timeUnavailable}&lt;/div>;
+  }
+
+  return (
+    &lt;div
+      className="bar"
+      style={{
+        position: "fixed", // Sticks the bar to the bottom of the screen
+        bottom: 0,
+        left: 0,
+        right: 0,
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        padding: "10px 20px",
+        background: "#282c34",
+        color: "white",
+        zIndex: 9999,
+      }}
+    >
+      &lt;div className="time" style={{ color: "white" }}>
+        {currentTime ? currentTime.toLocaleTimeString() : translatedText.timeUnavailable}
+      &lt;/div>
+
+      &lt;div>{translatedText.translatedWeather}&lt;/div>
+
+      &lt;div
+        className="language-selector"
+        style={{
+          position: "relative",
+          color: "white",
+          cursor: "pointer",
+        }}
+        onClick={() => setDropdownVisible((prev) => !prev)}
+      >
+        {currentLanguage
+          ? languages.find((lang) => lang.code === currentLanguage)?.label
+          : translatedText.selectLanguage}
+        {dropdownVisible &amp;&amp; (
+          &lt;div
+            className="dropdown"
+            style={{
+              position: "absolute",
+              bottom: "calc(100% + 10px)",
+              right: 0,
+              background: "white",
+              borderRadius: "5px",
+              boxShadow: "0 2px 5px rgba(0, 0, 0, 0.3)",
+              zIndex: 1000,
+              overflow: "hidden",
+              maxHeight: "300px",
+              overflowY: "auto",
+            }}
+          >
+            {languages.map((language) => (
+              &lt;div
+                key={language.code}
+                className="dropdown-item"
+                onClick={() => handleLanguageChange(language.code)}
+                style={{ padding: "5px 10px", cursor: "pointer" }}
+              >
+                {language.label}
+              &lt;/div>
+            ))}
+          &lt;/div>
+        )}
+      &lt;/div>
+    &lt;/div>
+  );
+};
+
+export default OptionsBar;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-FasterTranslationContext.html">FasterTranslationContext</a></li><li><a href="module-ShoppingCartContext.html">ShoppingCartContext</a></li></ul><h3>Global</h3><ul><li><a href="global.html#API_URL">API_URL</a></li><li><a href="global.html#AddEmployee">AddEmployee</a></li><li><a href="global.html#App">App</a></li><li><a href="global.html#AppetizerSlice">AppetizerSlice</a></li><li><a href="global.html#CashierButton">CashierButton</a></li><li><a href="global.html#CashierLabel">CashierLabel</a></li><li><a href="global.html#CashierPage">CashierPage</a></li><li><a href="global.html#CheckoutButton">CheckoutButton</a></li><li><a href="global.html#CompletedOrderPage">CompletedOrderPage</a></li><li><a href="global.html#DrinkAndAppetizerButton">DrinkAndAppetizerButton</a></li><li><a href="global.html#DrinkEditor">DrinkEditor</a></li><li><a href="global.html#DrinkSlice">DrinkSlice</a></li><li><a href="global.html#DrinkSubText">DrinkSubText</a></li><li><a href="global.html#EditEmployee">EditEmployee</a></li><li><a href="global.html#EmailReceiptPage">EmailReceiptPage</a></li><li><a href="global.html#EntreeButton">EntreeButton</a></li><li><a href="global.html#EntreeSlice">EntreeSlice</a></li><li><a href="global.html#ExcessReportPage">ExcessReportPage</a></li><li><a href="global.html#GraphsPage">GraphsPage</a></li><li><a href="global.html#Histogram">Histogram</a></li><li><a href="global.html#Home">Home</a></li><li><a href="global.html#InventoryAdd">InventoryAdd</a></li><li><a href="global.html#InventoryEdit">InventoryEdit</a></li><li><a href="global.html#InventoryItemSlice">InventoryItemSlice</a></li><li><a href="global.html#InventoryPage">InventoryPage</a></li><li><a href="global.html#ItemAdd">ItemAdd</a></li><li><a href="global.html#ItemCountPage">ItemCountPage</a></li><li><a href="global.html#ItemEdit">ItemEdit</a></li><li><a href="global.html#ItemPage">ItemPage</a></li><li><a href="global.html#ItemSlice">ItemSlice</a></li><li><a href="global.html#KioskAppetizer">KioskAppetizer</a></li><li><a href="global.html#Layout">Layout</a></li><li><a href="global.html#Login">Login</a></li><li><a href="global.html#ManagerOrEmployee">ManagerOrEmployee</a></li><li><a href="global.html#ManagerSelection">ManagerSelection</a></li><li><a href="global.html#MealButton">MealButton</a></li><li><a href="global.html#MealSlice">MealSlice</a></li><li><a href="global.html#MealSubText">MealSubText</a></li><li><a href="global.html#Menu">Menu</a></li><li><a href="global.html#OptionsBar">OptionsBar</a></li><li><a href="global.html#OrderDisplay">OrderDisplay</a></li><li><a href="global.html#QueryDatabase">QueryDatabase</a></li><li><a href="global.html#ReceiptEdit">ReceiptEdit</a></li><li><a href="global.html#ReceiptPage">ReceiptPage</a></li><li><a href="global.html#ReceiptSlice">ReceiptSlice</a></li><li><a href="global.html#ReceiptView">ReceiptView</a></li><li><a href="global.html#RestockReportPage">RestockReportPage</a></li><li><a href="global.html#SalesReportPage">SalesReportPage</a></li><li><a href="global.html#SelectEntreePage1">SelectEntreePage1</a></li><li><a href="global.html#SelectEntreePage2">SelectEntreePage2</a></li><li><a href="global.html#SelectEntreePage3">SelectEntreePage3</a></li><li><a href="global.html#SelectSidePage">SelectSidePage</a></li><li><a href="global.html#ShoppingCartPage">ShoppingCartPage</a></li><li><a href="global.html#SideButton">SideButton</a></li><li><a href="global.html#SideSlice">SideSlice</a></li><li><a href="global.html#Sidebar">Sidebar</a></li><li><a href="global.html#TimeProvider">TimeProvider</a></li><li><a href="global.html#TranslationProvider">TranslationProvider</a></li><li><a href="global.html#WeatherProvider">WeatherProvider</a></li><li><a href="global.html#XZReportPage">XZReportPage</a></li><li><a href="global.html#completeOrder">completeOrder</a></li><li><a href="global.html#container">container</a></li><li><a href="global.html#doSalesReportQuery">doSalesReportQuery</a></li><li><a href="global.html#fetchAppetizers">fetchAppetizers</a></li><li><a href="global.html#fetchDrinks">fetchDrinks</a></li><li><a href="global.html#fetchKioskHomeData">fetchKioskHomeData</a></li><li><a href="global.html#fetchMeals">fetchMeals</a></li><li><a href="global.html#fetchMenuItems">fetchMenuItems</a></li><li><a href="global.html#fetchPendingOrders">fetchPendingOrders</a></li><li><a href="global.html#fetchRestockData">fetchRestockData</a></li><li><a href="global.html#gatherReportData">gatherReportData</a></li><li><a href="global.html#getItemCounts">getItemCounts</a></li><li><a href="global.html#getLastZReportDate">getLastZReportDate</a></li><li><a href="global.html#googleLogin">googleLogin</a></li><li><a href="global.html#loadTranslations">loadTranslations</a></li><li><a href="global.html#login">login</a></li><li><a href="global.html#processOrder">processOrder</a></li><li><a href="global.html#reportWebVitals">reportWebVitals</a></li><li><a href="global.html#root">root</a></li><li><a href="global.html#translateStringstranslatesthetext">translateStrings translates the text</a></li><li><a href="global.html#useTime">useTime</a></li><li><a href="global.html#useTranslate">useTranslate</a></li><li><a href="global.html#useWeatherContext">useWeatherContext</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Wed Dec 04 2024 23:42:06 GMT-0600 (Central Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

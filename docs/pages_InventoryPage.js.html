@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: pages/InventoryPage.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: pages/InventoryPage.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * InventoryPage Component
+ * 
+ * This component renders the inventory management interface for managers. It displays a list 
+ * of inventory items retrieved from the backend and provides options to add, edit, or remove 
+ * inventory items.
+ * 
+ * Features:
+ * - Displays a list of inventory items with their details (name, quantity, size).
+ * - Allows navigation to add new items or edit existing items.
+ * - Supports removing items from the inventory.
+ * - Dynamically translates labels and messages based on the selected language.
+ * 
+ * API Endpoints:
+ * - `/api/doInventoryLoad` - Fetches all inventory items.
+ * - `/api/removeInventoryItem` - Removes an inventory item by ID.
+ * 
+ * @example
+ * &lt;InventoryPage />
+ */
+
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import { useFasterTranslate } from '../contexts/FasterTranslationContext';
+import styles from '../styles/AllManager.module.css';
+import '../styles/Inventory.css';
+
+const API_URL = '/api'; // Base URL for the backend
+
+/**
+ * InventoryPage Component
+ * 
+ * @component
+ * @returns {JSX.Element} - The rendered inventory management page.
+ */
+function InventoryPage() {
+  const [InventoryData, setInventoryData] = useState([]);
+  const navigate = useNavigate();
+  const { translate } = useFasterTranslate();
+
+  /**
+   * State for translated labels.
+   * @type {Object}
+   */
+  const [labels, setLabels] = useState({});
+  const [loadingTranslations, setLoadingTranslations] = useState(true);
+
+  /**
+   * Fetches translations for labels and updates the state.
+   * 
+   * @returns {void}
+   */
+  useEffect(() => {
+    const loadTranslations = async () => {
+      try {
+        const translations = await translate([
+          'Back',
+          'Add New Inventory Item',
+        ]);
+
+        setLabels({
+          back: translations[0],
+          addNewItem: translations[1],
+        });
+      } catch (error) {
+        console.error('Error loading translations:', error);
+      } finally {
+        setLoadingTranslations(false);
+      }
+    };
+
+    loadTranslations();
+  }, [translate]);
+
+  /**
+   * Navigates to the ManagerSelection page.
+   * 
+   * @returns {void}
+   */
+  const navigateToManagerSelection = () => {
+    navigate('/managerselection');
+  };
+
+  /**
+   * Navigates to the InventoryAdd page.
+   * 
+   * @returns {void}
+   */
+  const navigateToAdd = () => {
+    navigate('/inventoryadd');
+  };
+
+  /**
+   * Fetches inventory data from the backend API.
+   * 
+   * @returns {void}
+   */
+  const fetchInventoryData = async () => {
+    try {
+      const response = await axios.post(`${API_URL}/doInventoryLoad`);
+      setInventoryData(response.data);
+    } catch (error) {
+      console.error('Error fetching inventory data:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchInventoryData();
+  }, []);
+
+  if (loadingTranslations) {
+    return &lt;div>Loading translations...&lt;/div>;
+  }
+
+  return (
+    &lt;div className={`${styles.container}`}>
+      &lt;div className={styles.buttonGroup}>
+        &lt;button className={styles.button} onClick={navigateToManagerSelection}>
+          {labels.back}
+        &lt;/button>
+        &lt;button className={styles.button} onClick={navigateToAdd}>
+          {labels.addNewItem}
+        &lt;/button>
+      &lt;/div>
+      &lt;div className={'inventory'}>
+        {InventoryData.map((item, index) => (
+          &lt;InventoryItemSlice key={index} item={item} fetchInventoryData={fetchInventoryData} />
+        ))}
+      &lt;/div>
+    &lt;/div>
+  );
+}
+
+/**
+ * InventoryItemSlice Component
+ * 
+ * This component represents an individual inventory item and provides options to 
+ * edit or remove the item.
+ * 
+ * @component
+ * @param {Object} props - The props for the component.
+ * @param {Object} props.item - The inventory item details.
+ * @param {Function} props.fetchInventoryData - The function to refresh inventory data.
+ * @returns {JSX.Element} - The rendered inventory item slice.
+ */
+function InventoryItemSlice({ item, fetchInventoryData }) {
+  const { inventory_id, name, quantity, quantity_type } = item;
+  const navigate = useNavigate();
+  const { translate } = useFasterTranslate();
+
+  /**
+   * State for translated labels.
+   * @type {Object}
+   */
+  const [labels, setLabels] = useState({});
+  const [loadingTranslations, setLoadingTranslations] = useState(true);
+
+  /**
+   * Fetches translations for labels and updates the state.
+   * 
+   * @returns {void}
+   */
+  useEffect(() => {
+    const loadTranslations = async () => {
+      try {
+        const translations = await translate([
+          'Item',
+          'Quantity',
+          'Size',
+          'Remove',
+          'Edit',
+          'Item removed successfully!',
+          'Failed to remove item',
+        ]);
+
+        setLabels({
+          item: translations[0],
+          quantity: translations[1],
+          size: translations[2],
+          remove: translations[3],
+          edit: translations[4],
+          success: translations[5],
+          failure: translations[6],
+        });
+      } catch (error) {
+        console.error('Error loading translations:', error);
+      } finally {
+        setLoadingTranslations(false);
+      }
+    };
+
+    loadTranslations();
+  }, [translate]);
+
+  /**
+   * Navigates to the InventoryEdit page with the current item's details.
+   * 
+   * @returns {void}
+   */
+  const navigateToEdit = () => {
+    navigate('/inventoryedit', {
+      state: {
+        inventory_id,
+        name,
+        quantity,
+        quantity_type,
+      },
+    });
+  };
+
+  /**
+   * Handles removing an inventory item by sending a request to the backend API.
+   * 
+   * @param {string} inventoryId - The ID of the inventory item to remove.
+   * @returns {void}
+   */
+  const handleRemove = async (inventoryId) => {
+    try {
+      const response = await axios.post(`${API_URL}/removeInventoryItem`, { inventory_id: inventoryId });
+      if (response.data.success) {
+        alert(labels.success);
+        fetchInventoryData();
+      } else {
+        alert(labels.failure);
+      }
+    } catch (error) {
+      console.error('Error removing item:', error);
+      alert(labels.failure);
+    }
+  };
+
+  if (loadingTranslations) {
+    return &lt;div>Loading translations...&lt;/div>;
+  }
+
+  return (
+    &lt;div className={'slice'}>
+      &lt;div className={'item'}>
+        &lt;strong>{labels.item}: &lt;/strong>
+        {name}
+      &lt;/div>
+      &lt;div className={'item'}>
+        &lt;strong>{labels.quantity}: &lt;/strong>
+        {quantity}
+      &lt;/div>
+      &lt;div className={'item'}>
+        &lt;strong>{labels.size}: &lt;/strong>
+        {quantity_type}
+      &lt;/div>
+      &lt;div>
+        &lt;button className={'button'} onClick={() => handleRemove(inventory_id)}>
+          {labels.remove}
+        &lt;/button>
+      &lt;/div>
+      &lt;div>
+        &lt;button className={'button'} onClick={navigateToEdit}>
+          {labels.edit}
+        &lt;/button>
+      &lt;/div>
+    &lt;/div>
+  );
+}
+
+export default InventoryPage;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-FasterTranslationContext.html">FasterTranslationContext</a></li><li><a href="module-ShoppingCartContext.html">ShoppingCartContext</a></li></ul><h3>Global</h3><ul><li><a href="global.html#API_URL">API_URL</a></li><li><a href="global.html#AddEmployee">AddEmployee</a></li><li><a href="global.html#App">App</a></li><li><a href="global.html#AppetizerSlice">AppetizerSlice</a></li><li><a href="global.html#CashierButton">CashierButton</a></li><li><a href="global.html#CashierLabel">CashierLabel</a></li><li><a href="global.html#CashierPage">CashierPage</a></li><li><a href="global.html#CheckoutButton">CheckoutButton</a></li><li><a href="global.html#CompletedOrderPage">CompletedOrderPage</a></li><li><a href="global.html#DrinkAndAppetizerButton">DrinkAndAppetizerButton</a></li><li><a href="global.html#DrinkEditor">DrinkEditor</a></li><li><a href="global.html#DrinkSlice">DrinkSlice</a></li><li><a href="global.html#DrinkSubText">DrinkSubText</a></li><li><a href="global.html#EditEmployee">EditEmployee</a></li><li><a href="global.html#EmailReceiptPage">EmailReceiptPage</a></li><li><a href="global.html#EntreeButton">EntreeButton</a></li><li><a href="global.html#EntreeSlice">EntreeSlice</a></li><li><a href="global.html#ExcessReportPage">ExcessReportPage</a></li><li><a href="global.html#GraphsPage">GraphsPage</a></li><li><a href="global.html#Histogram">Histogram</a></li><li><a href="global.html#Home">Home</a></li><li><a href="global.html#InventoryAdd">InventoryAdd</a></li><li><a href="global.html#InventoryEdit">InventoryEdit</a></li><li><a href="global.html#InventoryItemSlice">InventoryItemSlice</a></li><li><a href="global.html#InventoryPage">InventoryPage</a></li><li><a href="global.html#ItemAdd">ItemAdd</a></li><li><a href="global.html#ItemCountPage">ItemCountPage</a></li><li><a href="global.html#ItemEdit">ItemEdit</a></li><li><a href="global.html#ItemPage">ItemPage</a></li><li><a href="global.html#ItemSlice">ItemSlice</a></li><li><a href="global.html#KioskAppetizer">KioskAppetizer</a></li><li><a href="global.html#Layout">Layout</a></li><li><a href="global.html#Login">Login</a></li><li><a href="global.html#ManagerOrEmployee">ManagerOrEmployee</a></li><li><a href="global.html#ManagerSelection">ManagerSelection</a></li><li><a href="global.html#MealButton">MealButton</a></li><li><a href="global.html#MealSlice">MealSlice</a></li><li><a href="global.html#MealSubText">MealSubText</a></li><li><a href="global.html#Menu">Menu</a></li><li><a href="global.html#OptionsBar">OptionsBar</a></li><li><a href="global.html#OrderDisplay">OrderDisplay</a></li><li><a href="global.html#QueryDatabase">QueryDatabase</a></li><li><a href="global.html#ReceiptEdit">ReceiptEdit</a></li><li><a href="global.html#ReceiptPage">ReceiptPage</a></li><li><a href="global.html#ReceiptSlice">ReceiptSlice</a></li><li><a href="global.html#ReceiptView">ReceiptView</a></li><li><a href="global.html#RestockReportPage">RestockReportPage</a></li><li><a href="global.html#SalesReportPage">SalesReportPage</a></li><li><a href="global.html#SelectEntreePage1">SelectEntreePage1</a></li><li><a href="global.html#SelectEntreePage2">SelectEntreePage2</a></li><li><a href="global.html#SelectEntreePage3">SelectEntreePage3</a></li><li><a href="global.html#SelectSidePage">SelectSidePage</a></li><li><a href="global.html#ShoppingCartPage">ShoppingCartPage</a></li><li><a href="global.html#SideButton">SideButton</a></li><li><a href="global.html#SideSlice">SideSlice</a></li><li><a href="global.html#Sidebar">Sidebar</a></li><li><a href="global.html#TimeProvider">TimeProvider</a></li><li><a href="global.html#TranslationProvider">TranslationProvider</a></li><li><a href="global.html#WeatherProvider">WeatherProvider</a></li><li><a href="global.html#XZReportPage">XZReportPage</a></li><li><a href="global.html#completeOrder">completeOrder</a></li><li><a href="global.html#container">container</a></li><li><a href="global.html#doSalesReportQuery">doSalesReportQuery</a></li><li><a href="global.html#fetchAppetizers">fetchAppetizers</a></li><li><a href="global.html#fetchDrinks">fetchDrinks</a></li><li><a href="global.html#fetchKioskHomeData">fetchKioskHomeData</a></li><li><a href="global.html#fetchMeals">fetchMeals</a></li><li><a href="global.html#fetchMenuItems">fetchMenuItems</a></li><li><a href="global.html#fetchPendingOrders">fetchPendingOrders</a></li><li><a href="global.html#fetchRestockData">fetchRestockData</a></li><li><a href="global.html#gatherReportData">gatherReportData</a></li><li><a href="global.html#getItemCounts">getItemCounts</a></li><li><a href="global.html#getLastZReportDate">getLastZReportDate</a></li><li><a href="global.html#googleLogin">googleLogin</a></li><li><a href="global.html#loadTranslations">loadTranslations</a></li><li><a href="global.html#login">login</a></li><li><a href="global.html#processOrder">processOrder</a></li><li><a href="global.html#reportWebVitals">reportWebVitals</a></li><li><a href="global.html#root">root</a></li><li><a href="global.html#translateStringstranslatesthetext">translateStrings translates the text</a></li><li><a href="global.html#useTime">useTime</a></li><li><a href="global.html#useTranslate">useTranslate</a></li><li><a href="global.html#useWeatherContext">useWeatherContext</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Wed Dec 04 2024 23:42:06 GMT-0600 (Central Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: pages/ReceiptPage.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: pages/ReceiptPage.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * ReceiptPage Component
+ * 
+ * This component handles the display of all receipts, including searching for specific receipts by ID.
+ * It fetches the list of receipts from the backend and displays them in a list. Each receipt can be viewed, edited, or deleted.
+ * The page supports pagination for the receipt list and includes a search bar to filter by receipt ID.
+ * 
+ * Features:
+ * - Fetches and displays all receipts with pagination.
+ * - Allows searching for receipts by ID.
+ * - Displays the receipt details including ID, date, total amount, and status.
+ * - Provides options to view, edit, or delete a receipt.
+ * - Displays appropriate success/error messages when deleting a receipt.
+ * - Uses a translation context to handle multilingual support.
+ * 
+ * API Endpoints:
+ * - `GET /api/receipts?page={page}&amp;limit={limit}` - Fetches a list of receipts with pagination.
+ * - `GET /api/receipts/{receipt_id}` - Fetches a specific receipt by its ID.
+ * - `DELETE /api/receipts/{receipt_id}` - Deletes a specific receipt by its ID.
+ * 
+ * @component
+ * @example
+ * // Example usage
+ * &lt;ReceiptPage />
+ */
+
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import { useFasterTranslate } from '../contexts/FasterTranslationContext'; // Import the translation context
+
+const API_URL = '/api'; // Base URL for the backend
+
+/**
+ * The ReceiptPage component displays all receipts, allows searching for receipts by ID,
+ * and provides actions to view, edit, or delete a receipt.
+ * 
+ * @returns {JSX.Element} - The rendered ReceiptPage component.
+ */
+function ReceiptPage() {
+  const [receipts, setReceipts] = useState([]); // State to store the list of receipts
+  const [searchId, setSearchId] = useState(''); // State to store the search query
+  const navigate = useNavigate(); // Hook for navigation
+  const { translate } = useFasterTranslate(); // Use the translate function from context
+
+  const [translatedText, setTranslatedText] = useState({}); // State for translated strings
+  const [loadingTranslations, setLoadingTranslations] = useState(true); // State for loading translations
+
+  /**
+   * Loads translations for the UI elements on the page.
+   * 
+   * @returns {void}
+   */
+  useEffect(() => {
+    const loadTranslations = async () => {
+      try {
+        const translations = await translate([
+          'Back',
+          'Receipt Management',
+          'Search by Receipt ID',
+          'Search',
+          'No receipts found.',
+          'Receipt ID:',
+          'Date:',
+          'Total Amount:',
+          'Status:',
+          'View',
+          'Edit',
+          'Delete',
+          'Are you sure you want to delete this receipt?',
+          'Receipt deleted successfully!',
+          'Failed to delete receipt',
+        ]);
+
+        setTranslatedText({
+          backButton: translations[0],
+          receiptManagementTitle: translations[1],
+          searchPlaceholder: translations[2],
+          searchButton: translations[3],
+          noReceiptsMessage: translations[4],
+          receiptIDLabel: translations[5],
+          dateLabel: translations[6],
+          totalAmountLabel: translations[7],
+          statusLabel: translations[8],
+          viewButton: translations[9],
+          editButton: translations[10],
+          deleteButton: translations[11],
+          deleteConfirmMessage: translations[12],
+          deleteSuccessMessage: translations[13],
+          deleteFailureMessage: translations[14],
+        });
+      } catch (error) {
+        console.error('Error loading translations:', error);
+      } finally {
+        setLoadingTranslations(false);
+      }
+    };
+
+    loadTranslations();
+  }, [translate]);
+
+  /**
+   * Fetches receipts from the backend API with pagination.
+   * 
+   * @param {number} page - The current page number for pagination.
+   * @param {number} limit - The number of items to display per page.
+   * @returns {void}
+   */
+  const fetchReceipts = async (page = 1, limit = 50) => {
+    try {
+      const response = await axios.get(`${API_URL}/receipts?page=${page}&amp;limit=${limit}`);
+      setReceipts(response.data);
+    } catch (error) {
+      console.error('Error fetching receipts:', error);
+    }
+  };
+
+
+  useEffect(() => {
+    fetchReceipts();
+  }, []);
+  /**
+   * Handles the search functionality by receipt ID.
+   * 
+   * @param {React.FormEvent} e - The form submission event.
+   * @returns {void}
+   */
+  const handleSearch = async (e) => {
+    e.preventDefault();
+    if (!searchId) {
+      fetchReceipts();
+      return;
+    }
+
+    try {
+      const response = await axios.get(`${API_URL}/receipts/${searchId}`);
+      setReceipts(response.data ? [response.data] : []);
+    } catch (error) {
+      console.error('Error searching for receipt:', error);
+      setReceipts([]);
+    }
+  };
+
+  /**
+   * Navigates back to the Manager Selection page.
+   * 
+   * @returns {void}
+   */
+  const navigateBack = () => {
+    navigate('/managerselection');
+  };
+
+  // If translations are still loading, show a loading message
+  if (loadingTranslations) {
+    return &lt;div>Loading translations...&lt;/div>;
+  }
+
+  return (
+    &lt;div style={{ padding: '20px', overflowY: 'auto', height: 'calc(100vh - 60px)' }}>
+      &lt;div>
+        &lt;button style={{ width: '100%' }} onClick={navigateBack}>
+          {translatedText.backButton}
+        &lt;/button>
+      &lt;/div>
+      &lt;h2>{translatedText.receiptManagementTitle}&lt;/h2>
+      &lt;form onSubmit={handleSearch} style={{ marginBottom: '20px' }}>
+        &lt;input
+          type="text"
+          placeholder={translatedText.searchPlaceholder}
+          value={searchId}
+          onChange={(e) => setSearchId(e.target.value)}
+          style={{ width: '80%', padding: '10px' }}
+        />
+        &lt;button type="submit" style={{ padding: '10px', width: '18%', marginLeft: '2%' }}>
+          {translatedText.searchButton}
+        &lt;/button>
+      &lt;/form>
+      {receipts.length > 0 ? (
+        receipts.map((receipt) => (
+          &lt;ReceiptSlice
+            key={receipt.receipt_id}
+            receipt={receipt}
+            fetchReceipts={fetchReceipts}
+            translatedText={translatedText} // Pass translations as props
+          />
+        ))
+      ) : (
+        &lt;p>{translatedText.noReceiptsMessage}&lt;/p>
+      )}
+    &lt;/div>
+  );
+}
+
+/**
+ * ReceiptSlice Component
+ * 
+ * This component is used to display a single receipt's details in the ReceiptPage. 
+ * It provides actions to view, edit, and delete the receipt.
+ * 
+ * Features:
+ * - Displays receipt information such as ID, date, total amount, and status.
+ * - Provides options to view, edit, or delete a receipt.
+ * 
+ * @component
+ * @example
+ * // Example usage
+ * &lt;ReceiptSlice receipt={receipt} fetchReceipts={fetchReceipts} translatedText={translatedText} />
+ * 
+ * @param {Object} receipt - The receipt data to display.
+ * @param {Function} fetchReceipts - The function to refresh the list of receipts after deletion.
+ * @param {Object} translatedText - The translations for various UI elements.
+ */
+function ReceiptSlice({ receipt, fetchReceipts, translatedText }) {
+  const navigate = useNavigate();
+
+  const navigateToView = () => {
+    navigate('/receiptview', { state: { receipt_id: receipt.receipt_id } });
+  };
+
+  const navigateToEdit = () => {
+    navigate('/receiptedit', { state: { receipt_id: receipt.receipt_id } });
+  };
+
+  /**
+   * Handles receipt deletion. Confirms with the user before making the deletion request.
+   * 
+   * @returns {void}
+   */
+  const handleDelete = async () => {
+    if (!window.confirm(translatedText.deleteConfirmMessage)) return;
+
+    try {
+      const response = await axios.delete(`${API_URL}/receipts/${receipt.receipt_id}`);
+      if (response.data.success) {
+        alert(translatedText.deleteSuccessMessage);
+        fetchReceipts();
+      } else {
+        alert(translatedText.deleteFailureMessage);
+      }
+    } catch (error) {
+      console.error('Error deleting receipt:', error);
+      alert(translatedText.deleteFailureMessage);
+    }
+  };
+
+  return (
+    &lt;div
+      style={{
+        backgroundColor: 'whitesmoke',
+        padding: '10px',
+        border: '1px solid black',
+        marginTop: '10px',
+      }}
+    >
+      &lt;div>
+        &lt;strong>{translatedText.receiptIDLabel}&lt;/strong> {receipt.receipt_id}
+      &lt;/div>
+      &lt;div>
+        &lt;strong>{translatedText.dateLabel}&lt;/strong>{' '}
+        {new Date(receipt.date).toLocaleString()}
+      &lt;/div>
+      &lt;div>
+        &lt;strong>{translatedText.totalAmountLabel}&lt;/strong> $
+        {parseFloat(receipt.totalamount).toFixed(2)}
+      &lt;/div>
+      &lt;div>
+        &lt;strong>{translatedText.statusLabel}&lt;/strong> {receipt.status}
+      &lt;/div>
+      &lt;button onClick={navigateToView}>
+        {translatedText.viewButton}
+      &lt;/button>
+      &lt;button onClick={navigateToEdit}>
+        {translatedText.editButton}
+      &lt;/button>
+      &lt;button
+        onClick={handleDelete}
+        style={{ backgroundColor: '#d32f2f', color: 'white' }}
+      >
+        {translatedText.deleteButton}
+      &lt;/button>
+    &lt;/div>
+  );
+}
+
+export default ReceiptPage;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-FasterTranslationContext.html">FasterTranslationContext</a></li><li><a href="module-ShoppingCartContext.html">ShoppingCartContext</a></li></ul><h3>Global</h3><ul><li><a href="global.html#API_URL">API_URL</a></li><li><a href="global.html#AddEmployee">AddEmployee</a></li><li><a href="global.html#App">App</a></li><li><a href="global.html#AppetizerSlice">AppetizerSlice</a></li><li><a href="global.html#CashierButton">CashierButton</a></li><li><a href="global.html#CashierLabel">CashierLabel</a></li><li><a href="global.html#CashierPage">CashierPage</a></li><li><a href="global.html#CheckoutButton">CheckoutButton</a></li><li><a href="global.html#CompletedOrderPage">CompletedOrderPage</a></li><li><a href="global.html#DrinkAndAppetizerButton">DrinkAndAppetizerButton</a></li><li><a href="global.html#DrinkEditor">DrinkEditor</a></li><li><a href="global.html#DrinkSlice">DrinkSlice</a></li><li><a href="global.html#DrinkSubText">DrinkSubText</a></li><li><a href="global.html#EditEmployee">EditEmployee</a></li><li><a href="global.html#EmailReceiptPage">EmailReceiptPage</a></li><li><a href="global.html#EntreeButton">EntreeButton</a></li><li><a href="global.html#EntreeSlice">EntreeSlice</a></li><li><a href="global.html#ExcessReportPage">ExcessReportPage</a></li><li><a href="global.html#GraphsPage">GraphsPage</a></li><li><a href="global.html#Histogram">Histogram</a></li><li><a href="global.html#Home">Home</a></li><li><a href="global.html#InventoryAdd">InventoryAdd</a></li><li><a href="global.html#InventoryEdit">InventoryEdit</a></li><li><a href="global.html#InventoryItemSlice">InventoryItemSlice</a></li><li><a href="global.html#InventoryPage">InventoryPage</a></li><li><a href="global.html#ItemAdd">ItemAdd</a></li><li><a href="global.html#ItemCountPage">ItemCountPage</a></li><li><a href="global.html#ItemEdit">ItemEdit</a></li><li><a href="global.html#ItemPage">ItemPage</a></li><li><a href="global.html#ItemSlice">ItemSlice</a></li><li><a href="global.html#KioskAppetizer">KioskAppetizer</a></li><li><a href="global.html#Layout">Layout</a></li><li><a href="global.html#Login">Login</a></li><li><a href="global.html#ManagerOrEmployee">ManagerOrEmployee</a></li><li><a href="global.html#ManagerSelection">ManagerSelection</a></li><li><a href="global.html#MealButton">MealButton</a></li><li><a href="global.html#MealSlice">MealSlice</a></li><li><a href="global.html#MealSubText">MealSubText</a></li><li><a href="global.html#Menu">Menu</a></li><li><a href="global.html#OptionsBar">OptionsBar</a></li><li><a href="global.html#OrderDisplay">OrderDisplay</a></li><li><a href="global.html#QueryDatabase">QueryDatabase</a></li><li><a href="global.html#ReceiptEdit">ReceiptEdit</a></li><li><a href="global.html#ReceiptPage">ReceiptPage</a></li><li><a href="global.html#ReceiptSlice">ReceiptSlice</a></li><li><a href="global.html#ReceiptView">ReceiptView</a></li><li><a href="global.html#RestockReportPage">RestockReportPage</a></li><li><a href="global.html#SalesReportPage">SalesReportPage</a></li><li><a href="global.html#SelectEntreePage1">SelectEntreePage1</a></li><li><a href="global.html#SelectEntreePage2">SelectEntreePage2</a></li><li><a href="global.html#SelectEntreePage3">SelectEntreePage3</a></li><li><a href="global.html#SelectSidePage">SelectSidePage</a></li><li><a href="global.html#ShoppingCartPage">ShoppingCartPage</a></li><li><a href="global.html#SideButton">SideButton</a></li><li><a href="global.html#SideSlice">SideSlice</a></li><li><a href="global.html#Sidebar">Sidebar</a></li><li><a href="global.html#TimeProvider">TimeProvider</a></li><li><a href="global.html#TranslationProvider">TranslationProvider</a></li><li><a href="global.html#WeatherProvider">WeatherProvider</a></li><li><a href="global.html#XZReportPage">XZReportPage</a></li><li><a href="global.html#completeOrder">completeOrder</a></li><li><a href="global.html#container">container</a></li><li><a href="global.html#doSalesReportQuery">doSalesReportQuery</a></li><li><a href="global.html#fetchAppetizers">fetchAppetizers</a></li><li><a href="global.html#fetchDrinks">fetchDrinks</a></li><li><a href="global.html#fetchKioskHomeData">fetchKioskHomeData</a></li><li><a href="global.html#fetchMeals">fetchMeals</a></li><li><a href="global.html#fetchMenuItems">fetchMenuItems</a></li><li><a href="global.html#fetchPendingOrders">fetchPendingOrders</a></li><li><a href="global.html#fetchRestockData">fetchRestockData</a></li><li><a href="global.html#gatherReportData">gatherReportData</a></li><li><a href="global.html#getItemCounts">getItemCounts</a></li><li><a href="global.html#getLastZReportDate">getLastZReportDate</a></li><li><a href="global.html#googleLogin">googleLogin</a></li><li><a href="global.html#loadTranslations">loadTranslations</a></li><li><a href="global.html#login">login</a></li><li><a href="global.html#processOrder">processOrder</a></li><li><a href="global.html#reportWebVitals">reportWebVitals</a></li><li><a href="global.html#root">root</a></li><li><a href="global.html#translateStringstranslatesthetext">translateStrings translates the text</a></li><li><a href="global.html#useTime">useTime</a></li><li><a href="global.html#useTranslate">useTranslate</a></li><li><a href="global.html#useWeatherContext">useWeatherContext</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Wed Dec 04 2024 23:42:06 GMT-0600 (Central Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

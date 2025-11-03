@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: pages/OrderPage.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: pages/OrderPage.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useTranslate } from '../contexts/TranslationContext';
+import '../styles/OrderPage.css';
+import { useShoppingCart } from '../contexts/ShoppingCartContext';
+
+const API_URL = '/api';
+
+const OrderPage = () => {
+    
+    /** 
+     * Destructure addItemToCart and cartItems from ShoppingCartContext.
+     * addItemToCart is used to add items to the cart, and cartItems holds the list of items in the cart.
+     */
+    const { addItemToCart, cartItems } = useShoppingCart(); // Access cartItems
+    const navigate = useNavigate();
+    const { translate } = useTranslate();
+
+    /** 
+     * State to track the selected category (Meals, Drinks, Appetizers).
+     */
+    const [selectedCategory, setSelectedCategory] = useState("Meals");
+
+    /** 
+     * States to store different item lists based on categories (Appetizers, Drinks, Meals).
+     */
+    const [appetizerItems, setAppetizerItems] = useState([]);
+    const [drinkItems, setDrinkItems] = useState([]);
+    const [mealItems, setMealItems] = useState([]);
+
+    /** 
+     * State to store translated strings used for text in the component.
+     */
+    const [translatedStrings, setTranslatedStrings] = useState({
+        orderCategories: '',
+        meals: '',
+        drinks: '',
+        appetizers: '',
+        viewCart: '',
+        backToHome: '',
+        selectCategory: '',
+    });
+   
+    /** 
+     * State to manage the visibility of the popup suggesting adding a drink or side to the cart.
+     */
+    const [showPopup, setShowPopup] = useState(false); // Manage popup visibility
+
+    // Handle adding an item to the cart
+    /** 
+     * Function to handle adding an item to the shopping cart.
+     * Alerts the user that the item has been added.
+     */
+    const handleAddToCart = (item) => {
+        addItemToCart(item);
+        alert(`${item.name} added to cart!`);
+    };
+
+    /** 
+     * Function to handle the selection of a category (Meals, Drinks, Appetizers).
+     */
+    const handleCategoryClick = (category) => {
+        setSelectedCategory(category);
+    };
+
+    /** 
+     * Fetches meal items from the API and updates the mealItems state.
+     */
+    const fetchMeals = async () => {
+        try {
+            const response = await fetch(`${API_URL}/doQueryMealItems`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+            });
+            const data = await response.json();
+            setMealItems(Array.isArray(data) ? data : []);
+        } catch (error) {
+            console.error('Error fetching meal items:', error);
+            setMealItems([]);
+        }
+    };
+
+    /** 
+     * Fetches appetizer items from the API and updates the appetizerItems state.
+     */
+    const fetchAppetizers = async () => {
+        try {
+            const response = await fetch(`${API_URL}/doQueryAppItems`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+            });
+            const data = await response.json();
+            const itemsWithType = Array.isArray(data) ? data.map(item => ({ ...item, type: "appetizer" })) : [];
+            setAppetizerItems(itemsWithType);
+        } catch (error) {
+            console.error('Error fetching appetizer items:', error);
+            setAppetizerItems([]);
+        }
+    };
+    
+
+    /** 
+     * Fetches drink items from the API and updates the drinkItems state.
+     */
+    const fetchDrinks = async () => {
+        try {
+            const response = await fetch(`${API_URL}/doQueryDrinkItems`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+            });
+            const data = await response.json();
+            const itemsWithType = Array.isArray(data) ? data.map(item => ({ ...item, type: "Drink" })) : [];
+            setDrinkItems(itemsWithType);
+        } catch (error) {
+            console.error('Error fetching drink items:', error);
+            setDrinkItems([]);
+        }
+    };
+
+    /** 
+     * UseEffect hook to translate the necessary strings when the component mounts.
+     * Translated strings are then set in the state.
+     */
+    useEffect(() => {
+        const translateStrings = async () => {
+            const orderCategories = await translate('Order Categories');
+            const meals = await translate('Meals');
+            const drinks = await translate('Drinks');
+            const appetizers = await translate('Appetizers');
+            const viewCart = await translate('View Shopping Cart');
+            const backToHome = await translate('Back to Home');
+            const selectCategory = await translate('Select a Category');
+
+            setTranslatedStrings({
+                orderCategories,
+                meals,
+                drinks,
+                appetizers,
+                viewCart,
+                backToHome,
+                selectCategory,
+            });
+        };
+
+        translateStrings(); // Translate strings on component mount
+    }, [translate]);
+
+    /** 
+     * UseEffect hook to fetch data for the selected category.
+     * Fetches meals, appetizers, or drinks based on selectedCategory.
+     */
+    useEffect(() => {
+        if (selectedCategory === 'Appetizers') fetchAppetizers();
+        if (selectedCategory === 'Drinks') fetchDrinks();
+        if (selectedCategory === 'Meals') fetchMeals();
+    }, [selectedCategory]);
+
+    // Check if there's a meal in the cart and no drink on page load
+    /** 
+     * UseEffect hook to check the cart on page load.
+     * Shows a popup if a meal is in the cart and there is no drink or side.
+     */
+    useEffect(() => {
+        const hasMeal = cartItems.some(item => item.type === 'Meal');
+        const hasDrink = cartItems.some(item => item.type === 'Drink');
+        const hasSide = cartItems.some(item => item.type === 'Side');
+        if (hasMeal &amp;&amp; !hasDrink &amp;&amp; !hasSide) {
+            setShowPopup(true); // Show the popup if there is a meal and no drink
+        }
+    }, [cartItems]);
+
+    /** 
+     * Function to handle closing the popup.
+     */
+    const handleClosePopup = () => {
+        setShowPopup(false); 
+    };
+
+    /** 
+     * Function to navigate to the Drinks category and close the popup.
+     */
+    const handleAddDrink = () => {
+        setShowPopup(false); 
+        handleCategoryClick("Drinks");
+    };
+
+    /** 
+     * Function to navigate to the Appetizers category and close the popup.
+     */
+    const handleAddSide = () => {
+        setShowPopup(false); 
+        handleCategoryClick("Appetizers");
+    };
+
+    return (
+        &lt;div className="order-page">
+            {showPopup &amp;&amp; (
+                &lt;div className="popup-overlay">
+                    &lt;div className="popup-content">
+                        &lt;p>It looks like you have a meal in your cart. Would you like to add a drink or side to go with i?&lt;/p>
+                        &lt;button onClick={handleAddDrink}>Yes, take me to drinks&lt;/button>
+                        &lt;button onClick={handleAddSide}>Yes, take me to sides&lt;/button>
+                        &lt;button onClick={handleClosePopup}>No, thanks&lt;/button>
+                    &lt;/div>
+                &lt;/div>
+            )}
+
+            &lt;div className="sidebar">
+                &lt;h3>{translatedStrings.orderCategories}&lt;/h3>
+                &lt;ul>
+                    &lt;li onClick={() => handleCategoryClick("Meals")}>{translatedStrings.meals}&lt;/li>
+                    &lt;li onClick={() => handleCategoryClick("Drinks")}>{translatedStrings.drinks}&lt;/li>
+                    &lt;li onClick={() => handleCategoryClick("Appetizers")}>{translatedStrings.appetizers}&lt;/li>
+                    &lt;li onClick={() => navigate("/shoppingcart")}>{translatedStrings.viewCart}&lt;/li>
+                    &lt;li onClick={() => navigate("/")} >{translatedStrings.backToHome}&lt;/li>
+                &lt;/ul>
+            &lt;/div>
+
+            &lt;div className="content">
+                &lt;h2>{selectedCategory ? selectedCategory : translatedStrings.selectCategory}&lt;/h2>
+
+                {selectedCategory === "Meals" &amp;&amp; (
+                    &lt;div className="grid-container">
+                        {mealItems.map((item, index) => (
+                            
+                            &lt;button key={index} className="grid-item" onClick={() => navigate("/selectentree1", { state: { meal_item: item } })}>
+                                &lt;img class="inverted" src={`${process.env.PUBLIC_URL}/${item.name.replace(/[\s/]/g, '')}Icon.png`} alt={item.name}>&lt;/img>
+                                {MealSubText(item.name)}
+                                {item.name}
+                            &lt;/button>
+                        ))}
+                    &lt;/div>
+                )}
+
+                {selectedCategory === 'Drinks' &amp;&amp; (
+                    &lt;div className="grid-container">
+                        {drinkItems.map((item, index) => (
+                            &lt;button key={index} className="grid-item" onClick={() => handleAddToCart(item)}>
+                                &lt;img class="inverted" src={`${process.env.PUBLIC_URL}/${item.name.replace(/[\s/]/g, '')}.png`} alt={item.name}>&lt;/img>
+                                {item.name}
+                            &lt;/button>
+                        ))}
+                    &lt;/div>
+                )}
+
+                {selectedCategory === 'Appetizers' &amp;&amp; (
+                    &lt;div className="grid-container">
+                        {appetizerItems.map((item, index) => (
+                            &lt;button key={index} className="grid-item" onClick={() => handleAddToCart(item)}>
+                                &lt;img src={`${process.env.PUBLIC_URL}/${item.name.replace(/[\s/]/g, '')}.png`} alt={item.name}>&lt;/img>
+                                {item.name}
+                            &lt;/button>
+                        ))}
+                    &lt;/div>
+                )}
+            &lt;/div>
+
+            {/* Inline CSS for Popup */}
+            &lt;style jsx>{`
+                .popup-overlay {
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    bottom: 0;
+                    background: rgba(0, 0, 0, 0.7);
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    z-index: 999;
+                }
+
+                .popup-content {
+                    background-color: white;
+                    padding: 20px;
+                    border-radius: 8px;
+                    max-width: 400px;
+                    text-align: center;
+                    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                }
+
+                .popup-content button {
+                    margin: 10px;
+                    padding: 10px 20px;
+                    background-color: #4CAF50;
+                    color: white;
+                    border: none;
+                    border-radius: 5px;
+                    cursor: pointer;
+                    font-size: 16px;
+                }
+
+                .popup-content button:hover {
+                    background-color: #45a049;
+                }
+            `}&lt;/style>
+        &lt;/div>
+    );
+};
+
+/**
+ * Helper function to return the appropriate subtext for each meal type.
+ */
+const MealSubText = ( name ) => {
+    let ReturnedText;
+    if (name === 'Bowl') 
+        ReturnedText = '1 entree &amp; 1 side';
+    else if (name === 'Plate') 
+        ReturnedText = '2 entrees &amp; 1 side';
+    else if (name === "Bigger Plate")
+        ReturnedText = '3 entrees &amp; 1 side';
+    else 
+        ReturnedText = 'N/A';
+
+    return (
+        &lt;p>
+            ({ReturnedText})
+        &lt;/p>
+    );
+}
+
+export default OrderPage;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-FasterTranslationContext.html">FasterTranslationContext</a></li><li><a href="module-ShoppingCartContext.html">ShoppingCartContext</a></li></ul><h3>Global</h3><ul><li><a href="global.html#API_URL">API_URL</a></li><li><a href="global.html#AddEmployee">AddEmployee</a></li><li><a href="global.html#App">App</a></li><li><a href="global.html#AppetizerSlice">AppetizerSlice</a></li><li><a href="global.html#CashierButton">CashierButton</a></li><li><a href="global.html#CashierLabel">CashierLabel</a></li><li><a href="global.html#CashierPage">CashierPage</a></li><li><a href="global.html#CheckoutButton">CheckoutButton</a></li><li><a href="global.html#CompletedOrderPage">CompletedOrderPage</a></li><li><a href="global.html#DrinkAndAppetizerButton">DrinkAndAppetizerButton</a></li><li><a href="global.html#DrinkEditor">DrinkEditor</a></li><li><a href="global.html#DrinkSlice">DrinkSlice</a></li><li><a href="global.html#DrinkSubText">DrinkSubText</a></li><li><a href="global.html#EditEmployee">EditEmployee</a></li><li><a href="global.html#EmailReceiptPage">EmailReceiptPage</a></li><li><a href="global.html#EntreeButton">EntreeButton</a></li><li><a href="global.html#EntreeSlice">EntreeSlice</a></li><li><a href="global.html#ExcessReportPage">ExcessReportPage</a></li><li><a href="global.html#GraphsPage">GraphsPage</a></li><li><a href="global.html#Histogram">Histogram</a></li><li><a href="global.html#Home">Home</a></li><li><a href="global.html#InventoryAdd">InventoryAdd</a></li><li><a href="global.html#InventoryEdit">InventoryEdit</a></li><li><a href="global.html#InventoryItemSlice">InventoryItemSlice</a></li><li><a href="global.html#InventoryPage">InventoryPage</a></li><li><a href="global.html#ItemAdd">ItemAdd</a></li><li><a href="global.html#ItemCountPage">ItemCountPage</a></li><li><a href="global.html#ItemEdit">ItemEdit</a></li><li><a href="global.html#ItemPage">ItemPage</a></li><li><a href="global.html#ItemSlice">ItemSlice</a></li><li><a href="global.html#KioskAppetizer">KioskAppetizer</a></li><li><a href="global.html#Layout">Layout</a></li><li><a href="global.html#Login">Login</a></li><li><a href="global.html#ManagerOrEmployee">ManagerOrEmployee</a></li><li><a href="global.html#ManagerSelection">ManagerSelection</a></li><li><a href="global.html#MealButton">MealButton</a></li><li><a href="global.html#MealSlice">MealSlice</a></li><li><a href="global.html#MealSubText">MealSubText</a></li><li><a href="global.html#Menu">Menu</a></li><li><a href="global.html#OptionsBar">OptionsBar</a></li><li><a href="global.html#OrderDisplay">OrderDisplay</a></li><li><a href="global.html#QueryDatabase">QueryDatabase</a></li><li><a href="global.html#ReceiptEdit">ReceiptEdit</a></li><li><a href="global.html#ReceiptPage">ReceiptPage</a></li><li><a href="global.html#ReceiptSlice">ReceiptSlice</a></li><li><a href="global.html#ReceiptView">ReceiptView</a></li><li><a href="global.html#RestockReportPage">RestockReportPage</a></li><li><a href="global.html#SalesReportPage">SalesReportPage</a></li><li><a href="global.html#SelectEntreePage1">SelectEntreePage1</a></li><li><a href="global.html#SelectEntreePage2">SelectEntreePage2</a></li><li><a href="global.html#SelectEntreePage3">SelectEntreePage3</a></li><li><a href="global.html#SelectSidePage">SelectSidePage</a></li><li><a href="global.html#ShoppingCartPage">ShoppingCartPage</a></li><li><a href="global.html#SideButton">SideButton</a></li><li><a href="global.html#SideSlice">SideSlice</a></li><li><a href="global.html#Sidebar">Sidebar</a></li><li><a href="global.html#TimeProvider">TimeProvider</a></li><li><a href="global.html#TranslationProvider">TranslationProvider</a></li><li><a href="global.html#WeatherProvider">WeatherProvider</a></li><li><a href="global.html#XZReportPage">XZReportPage</a></li><li><a href="global.html#completeOrder">completeOrder</a></li><li><a href="global.html#container">container</a></li><li><a href="global.html#doSalesReportQuery">doSalesReportQuery</a></li><li><a href="global.html#fetchAppetizers">fetchAppetizers</a></li><li><a href="global.html#fetchDrinks">fetchDrinks</a></li><li><a href="global.html#fetchKioskHomeData">fetchKioskHomeData</a></li><li><a href="global.html#fetchMeals">fetchMeals</a></li><li><a href="global.html#fetchMenuItems">fetchMenuItems</a></li><li><a href="global.html#fetchPendingOrders">fetchPendingOrders</a></li><li><a href="global.html#fetchRestockData">fetchRestockData</a></li><li><a href="global.html#gatherReportData">gatherReportData</a></li><li><a href="global.html#getItemCounts">getItemCounts</a></li><li><a href="global.html#getLastZReportDate">getLastZReportDate</a></li><li><a href="global.html#googleLogin">googleLogin</a></li><li><a href="global.html#loadTranslations">loadTranslations</a></li><li><a href="global.html#login">login</a></li><li><a href="global.html#processOrder">processOrder</a></li><li><a href="global.html#reportWebVitals">reportWebVitals</a></li><li><a href="global.html#root">root</a></li><li><a href="global.html#translateStringstranslatesthetext">translateStrings translates the text</a></li><li><a href="global.html#useTime">useTime</a></li><li><a href="global.html#useTranslate">useTranslate</a></li><li><a href="global.html#useWeatherContext">useWeatherContext</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Wed Dec 04 2024 23:42:06 GMT-0600 (Central Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
