@@ -1,0 +1,115 @@
+/* Layout for the main container */
+.order-page {
+    display: flex;
+    height: 96vh;
+    width: 100%;
+    background-image: url('../../public/kiosk-background.avif'); /* Ensure path is correct */
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+}
+
+
+.sidebar {
+    width: 200px;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.8); /* Red color with 80% opacity */
+    padding: 20px;
+    box-shadow: 2px 0px 5px rgba(0, 0, 0, 0.5);
+    position: fixed;
+    top: 0;
+    left: 0;
+}
+
+.content h2 {
+    color: #ffffff; /* Replace with your desired color */
+    text-shadow: #000 2px 2px 2px; /* Add text shadow for better readability */
+    font-size: 2rem; /* Adjust font size if needed */
+    font-weight: bold;
+    text-align: center; /* Center the title if desired */
+    margin-bottom: 20px;
+}
+
+.content {
+    margin-left: 200px;
+    padding: 20px;
+    width: calc(100% - 200px);
+    height: 100%;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    /* background-color: rgba(255, 255, 255, 0.8);  */ 
+}
+
+.sidebar ul {
+    list-style: none;
+    padding: 10px;
+}
+
+.sidebar li {
+    padding: 10px;
+    cursor: pointer;
+    font-size: 16px;
+    color: #000000;
+    transition: background-color 0.3s;
+}
+
+.sidebar li:hover {
+    background-color: #e90000;
+    border-radius: 5px;
+}
+
+.grid-container {
+    width: 100%;
+    height: 100%;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* Three buttons per row */
+    background-color: rgba(255, 255, 255, 0.8);
+    padding: 20px;
+    border: 30px solid #000000;
+    border-radius: 8px;
+    
+    box-sizing: border-box;
+}
+
+.grid-item {
+    width: 100%;
+    height: 100%;
+    font-size: 1.5rem; /* Maintain font size */
+    font-weight: bold;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    border: none;
+    background-color: #ff0000 !important;
+    color: rgb(0, 0, 0);
+    cursor: pointer;
+    border-radius: 10px;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+.grid-item:hover {
+    background-color: #b30000 !important;
+    transform: scale(1.05);
+}
+
+.grid-item img {
+    width: 75%;
+    height: auto;
+    padding: 20px;
+    overflow: hidden;
+    object-fit: contain;
+    object-position: center;
+}
+
+.grid-item .inverted {
+    filter: invert(1) brightness(2);
+    color: #000;
+}
+
+.grid-item:hover .inverted {
+    filter: invert(0) brightness(0);
+}

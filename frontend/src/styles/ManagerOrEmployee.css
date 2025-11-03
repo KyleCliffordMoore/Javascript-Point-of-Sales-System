@@ -1,0 +1,45 @@
+/* Scoped styling for Manager or Employee page */
+.manager-employee-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-size: cover;
+    background-position: center;
+  }
+  
+  .manager-employee-container .content-box {
+    background-color: rgba(255, 255, 255, 0.8);
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    max-width: 300px;
+    width: 80%;
+  }
+  
+  /* Header styling */
+  .manager-employee-container .content-box h3 {
+    color: #333333;
+    font-size: 1.8rem;
+    margin-bottom: 20px;
+  }
+  
+  /* Button styling */
+  .manager-employee-container .content-box button {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    font-size: 1rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    background-color: #e63946;
+    color: white;
+  }
+  
+  /* Button hover effect */
+  .manager-employee-container .content-box button:hover {
+    opacity: 0.9;
+  }
+  

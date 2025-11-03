@@ -1,0 +1,74 @@
+/* Ensure styles are scoped to the .home-container class */
+
+
+.home-container {
+    position: relative;
+    height: 100vh;
+    width: 100vw;
+    background-image: url('../../public/panda-background.jpeg'); /* Ensure path is correct */
+    background-size: cover;    
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.home-container * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.home-container .home-content {
+    background-color: rgba(255, 255, 255, 0.8); /* White with 80% opacity */
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    max-width: 300px;
+    width: 80%;
+}
+
+.home-container h1 {
+    color: #333333; /* Dark color for contrast */
+    font-size: 2rem;
+    margin-bottom: 20px;
+}
+
+.home-container .start-order-button,
+.home-container .menu-button,
+.home-container .login-button {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    font-size: 1rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    /* Force the color and background color */
+    color: white !important; /* Text color */
+    background-color: black !important; /* Background color */
+}
+
+/* .home-container .start-order-button {
+    background-color: #e63946;
+    color: white;
+}
+
+.home-container .menu-button {
+    background-color: #e63946;
+    color: white;
+}
+
+.home-container .login-button {
+    background-color: #e63946;
+    color: white;
+} */
+
+.home-container .start-order-button:hover,
+.home-container .menu-button:hover,
+.home-container .login-button:hover {
+    opacity: 0.9;
+}

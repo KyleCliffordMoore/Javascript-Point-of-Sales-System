@@ -1,0 +1,220 @@
+.shopping-cart-page {
+    padding-top: 100px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    min-height: 100vh;
+    background-image: url('../../public/panda-background.jpeg'); /* Adjust path as needed */
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    color: #333;
+}
+
+.shopping-cart-page h2 {
+    color: #ffffff; /* Example color, adjust as needed */
+    font-size: 2.5rem;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 30px;
+    text-shadow: #000 2px 2px 2px; /* Add text shadow for better readability */
+}
+
+/* Styling for "Entrees:" and "Side:" labels */
+.label {
+    color: #000000; /* Example color; adjust as desired */
+    font-weight: bold;
+}
+
+.cart-table td p {
+    color: #000000; /* Use the color you desire for both the label and the returned names */
+}
+
+/* Ensure buttons remain visible */
+.cart-actions {
+    position: sticky;
+    bottom: 0;
+    background-color: rgba(250, 250, 250, 0.9); /* Background to improve readability */
+    padding: 20px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0px -2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow for emphasis */
+}
+
+.table-container {
+    max-height: 400px;
+    overflow-y: auto;
+    background-color: rgba(255, 0, 0, 0.9); /* White with 90% opacity */
+    border-radius: 8px;
+    width: 100%;
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 20px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.cart-table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: rgb(250, 250, 250);
+    color: rgb(0, 0, 0);
+    font-size: 1.5em; /* Slightly increase font size for readability */
+}
+
+.cart-table th, .cart-table td {
+    padding: 20px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+    color:#000000;
+}
+
+.cart-table th {
+    background-color: rgba(244, 244, 244, 0.9); /* Light grey with 90% opacity */
+    font-weight: bold;
+}
+
+.cart-table tbody tr:hover {
+    background-color: #cdcdcd;
+}
+
+.cart-table td button {
+    padding: 12px 40px; /* Make buttons larger */
+    background-color: rgba(217, 83, 79, 0.9); /* Slightly transparent red */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1.1em;
+    width: 100%;
+}
+
+.cart-table td button:hover {
+    background-color: rgba(201, 48, 44, 0.9);
+}
+
+.clear-cart-btn, .checkout-btn {
+    padding: 15px 30px;
+    background-color: rgba(217, 83, 79, 0.9); /* Same red as other buttons */
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1.2em;
+    width: 90%;
+    max-width: 300px;
+    margin: 20px auto;
+    text-align: center;
+    transition: background-color 0.3s;
+}
+
+.clear-cart-btn:hover, .checkout-btn:hover {
+    background-color: rgba(201, 48, 44, 0.9);
+}
+
+.back-btn {
+    padding: 15px 30px;
+    background-color: rgba(217, 83, 79, 0.9); /* Same red as other buttons */
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1.2em;
+    width: 80vh;
+    max-width: 300px;
+    margin: 20px auto;
+    text-align: center;
+    transition: background-color 0.3s;
+    align-self: center;
+}
+
+.back-btn:hover {
+    background-color: rgba(201, 48, 44, 0.9); /* Slightly darker on hover */
+}
+
+.cart-actions {
+    display: flex;
+    gap: 5px; /* Space between buttons */
+    justify-content: center; /* Center the buttons within the container */
+    margin-top: 20px;
+}
+
+.cart-actions button {
+    flex: 1; /* Make buttons take equal width */
+    max-width: 200px; /* Optional: limit max width of buttons */
+}
+
+.quantity-btn {
+    background-color: rgba(217, 83, 79, 0.9);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.quantity-btn:hover {
+    background-color: rgba(201, 48, 44, 0.9);
+}
+
+.total-price-container {
+    background-color: rgba(250, 250, 250, 0.9);
+    padding: 15px;
+    margin-top: 20px;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    font-size: 1.5em;
+    border-top: 1px solid #ddd;
+}
+
+.total-price-label {
+    margin-right: 20px;
+    font-weight: bold;
+}
+
+.total-price-value {
+    font-weight: bold;
+    color: rgba(217, 83, 79, 0.9);
+}
+
+.popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.popup-content {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    text-align: center;
+}
+
+.popup-actions button {
+    margin: 10px;
+    padding: 10px 20px;
+    border: none;
+    background: #d9534f;
+    color: white;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.popup-actions button:hover {
+    background: #c9302c;
+}

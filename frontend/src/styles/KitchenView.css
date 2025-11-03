@@ -1,0 +1,118 @@
+/* src/pages/KitchenView.css */
+
+.kitchen-page {
+    /* Ensure only the root elements within KitchenView have full width and height */
+    html, body, #root {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+    }
+  
+    .kitchen-view {
+        padding: 10px;
+        background-color: rgb(255, 255, 255);
+        width: 100%;
+        min-height: 100vh;
+        box-sizing: border-box;
+    }
+  
+    .orders-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 20px;
+    }
+  
+    @media (min-width: 1200px) {
+        .orders-grid {
+            grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+        }
+    }
+  
+    .order-card {
+        border: 2px solid #ccc;
+        padding: 20px;
+        background-color: white;
+        color: black;
+        box-sizing: border-box;
+        max-height: 300px; /* Limit the card height */
+        display: flex;
+        flex-direction: column;
+    }
+  
+    .order-card h3 {
+        margin-top: 0;
+    }
+
+    .order-items {
+        flex-grow: 1; /* Allow the items list to take up available space */
+        overflow-y: auto; /* Enable vertical scrolling */
+        max-height: 150px; /* Limit the height of the scrollable area */
+        margin-top: 10px;
+        padding-right: 10px;
+    }
+  
+    .order-card ul {
+        list-style-type: none;
+        padding-left: 0;
+        margin: 0;
+    }
+  
+    .order-card li {
+        margin-bottom: 5px;
+    }
+  
+    .order-card button {
+        margin-top: 10px;
+        padding: 10px;
+        width: 100%;
+        background-color: #ff0000;
+        color: #fff;
+        border: none;
+        cursor: pointer;
+    }
+  
+    .order-card button:hover {
+        background-color: #b70808;
+    }
+
+    .orders-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 20px;
+    }
+    
+    @media (min-width: 1200px) {
+        .orders-grid {
+            grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+        }
+    }
+  
+    .no-orders-message {
+        text-align: center;
+        font-size: 1.5em;
+        color: #555;
+        margin-top: 20px;
+    }
+
+    .back-button {
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        height: 50px;
+        transform: translateX(-50%);
+        padding: 8px 16px; /* Reduce padding for less height */
+        font-size: 14px; /* Decrease font size for a more compact button */
+        background-color: #ff0000;
+        color: #fff;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+    
+      
+      .back-button:hover {
+        background-color: #b71c1c;
+      }
+  }
+  

@@ -1,0 +1,30 @@
+.bar {
+  background-color: #282c34;
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 4%;
+  border-top: 2px solid #61dafb;
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+}
+
+.time-bar {
+  font-size: 16px;
+}
+
+.language-selector {
+  font-size: 14px;
+}
+
+.dropdown div {
+  transition: background-color 0.3s, color 0.3s;
+  color: black; /* Ensure text is always visible */
+}
+
+.dropdown div:hover {
+  background-color: #61dafb; /* Highlight background */
+  color: white; /* Adjust text to ensure good contrast */
+}

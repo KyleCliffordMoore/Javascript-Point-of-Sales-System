@@ -1,0 +1,144 @@
+/* Basic Reset */
+.kiosk-page * {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.kiosk-page body {
+  font-family: 'Arial', sans-serif;
+  background-color: #f8f8f8;
+  overflow-y: auto;
+}
+
+/* Navbar at the top */
+.kiosk-page .navbar {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  width: 100%;
+  background-color: #333;
+  padding: 10px;
+  text-align: center;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  left: 0;
+  right: 0;
+  margin: 0;
+}
+
+.kiosk-page .navbar .nav-link {
+  color: white;
+  margin: 5px 15px;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.kiosk-page .navbar .nav-link:hover {
+  color: #d32f2f;
+}
+
+/* Main Kiosk Page Layout */
+.kiosk-page {
+  display: flex;
+  margin-top: 20px;
+  flex-wrap: wrap;
+}
+
+/* Content Section for Items */
+.kiosk-page .content {
+  flex: 2;
+  padding: 20px;
+  min-width: 60%;
+}
+
+.kiosk-page .category-section {
+  margin-bottom: 40px;
+}
+
+.kiosk-page .category-section h2 {
+  font-size: 1.8rem;
+  color: #d32f2f;
+  margin-bottom: 20px;
+}
+
+.kiosk-page .item-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 20px;
+}
+
+.kiosk-page .item-card {
+  background-color: white;
+  border-radius: 10px;
+  padding: 10px;
+  text-align: center;
+  cursor: pointer;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s;
+}
+
+.kiosk-page .item-card:hover {
+  transform: scale(1.05);
+}
+
+.kiosk-page .item-card img {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
+
+/* Sticky Sidebar */
+.kiosk-page .sidebar {
+  flex: 1;
+  padding: 20px;
+  width: 300px;
+  background-color: rgba(255, 255, 255, 0.9);
+  border-left: 2px solid #ddd;
+  position: sticky;
+  top: 70px;
+  max-height: calc(100vh - 70px);
+  overflow-y: auto;
+}
+
+.kiosk-page .sidebar h3 {
+  font-size: 1.5rem;
+  color: #333;
+  margin-bottom: 15px;
+}
+
+.kiosk-page .sidebar ul {
+  list-style: none;
+  padding: 0;
+  margin-bottom: 15px;
+}
+
+.kiosk-page .sidebar ul li {
+  margin-bottom: 10px;
+}
+
+.kiosk-page .sidebar p {
+  font-weight: bold;
+  margin-top: 20px;
+}
+
+.kiosk-page .checkout-button {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  background-color: #d32f2f;
+  color: white;
+  font-size: 1rem;
+  font-weight: bold;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 20px;
+}
+
+.kiosk-page .checkout-button:hover {
+  background-color: #b71c1c;
+}

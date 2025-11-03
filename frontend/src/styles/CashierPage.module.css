@@ -1,0 +1,175 @@
+/* src/pages/CashierPage.module.css */
+
+.cashier-page {
+  display: flex;
+  padding: 20px;
+  gap: 20px;
+  background-color: #da4848;
+  height: 100vh; /* Full viewport height */
+  overflow-y: auto; /* Enable vertical scrolling if content overflows */
+  overflow-x: hidden;
+  color: #ffffff; /* Sets all text to white */
+
+}
+
+.menu-section {
+  flex: 1; /* Allow the section to grow and fill available space */
+  padding: 20px;
+  overflow-y: auto; /* Enable vertical scrolling within the section */
+  background-color: #1f1f1f; /* Slightly lighter than page background for distinction */
+  border-radius: 8px;
+}
+
+.button-grid {
+  display: grid;
+  gap: 15px; /* Space between buttons */
+  margin-bottom: 20px; /* Space after each button section */
+  flex: 1; /* Allow the grid to grow and fill available space */
+  width: 100%;
+}
+
+.order-section {
+  width: 300px;
+  padding: 20px;
+  background-color: #2a2a2a;
+  /*border-left: 2px solid #ccc;*/
+  display: flex;
+  flex-direction: column;
+  overflow-y: scroll;
+}
+
+.order-display {
+
+  flex: 30%;
+  padding: 20px;
+  /*border-left: 1px solid #ccc;*/
+}
+
+.checkout-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.total-price {
+  font-size: 18px;
+  font-weight: bold;
+  color: #f0f0f0;
+}
+
+button.checkout-button {
+  padding: 10px 20px;
+  font-size: 16px;
+  background-color: #ffffff !important;
+  color: #000 !important;
+  width: 100%;
+  height: 100%;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+button.checkout-button:hover {
+  background-color: #0055a5;
+}
+
+button {
+  padding: 15px;
+  margin: 5px;
+  width: 20%;
+  height: 20%;
+  cursor: pointer;
+  border-radius: 5px;
+  font-size: 16px;
+  color: black;
+  background-color: white;
+  transition: background-color 0.3s;
+  font-weight: bold;
+}
+
+.cashier-page .button {
+  padding: 15px;
+  margin: 5px;
+  width: 20%;
+  height: 20%;
+  cursor: pointer;
+  border-radius: 5px;
+  font-size: 16px;
+  color: rgb(0, 0, 0) !important;
+  background-color: white !important;
+  
+}
+
+
+
+.meal {
+  background-color: #f0d859; /* Bright yellow */
+}
+
+.side {
+  background-color: #ff7f41; /* Vivid orange */
+}
+
+.entree {
+  background-color: #76c7c5; /* Aqua for high contrast */
+}
+
+.drink {
+  background-color: #85b5ed; /* Lighter blue */
+}
+
+.appetizer {
+  background-color: #ff85d1; /* Bright pink */
+}
+
+button:hover {
+  background-color: #e6e6e6;
+  color: #1a1a1a;
+}
+
+.selected {
+  filter: brightness(85%); /* Darken the button by 15% */
+  outline: 3px solid #ff0000;
+}
+
+
+.order-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+}
+
+.item-name {
+  flex: 2;
+}
+
+.item-controls {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.quantity-button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+.quantity-button:hover {
+  background-color: #0056b3;
+}
+
+.item-quantity {
+  margin: 0 10px;
+}
+
+.item-price {
+  flex: 1;
+  text-align: right;
+}

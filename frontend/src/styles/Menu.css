@@ -1,0 +1,468 @@
+/* Global Variables for Item Count */
+:root {
+  --NumberOfMeals: 0;
+  --NumberOfEntreeRows: 0;
+  --NumberOfSides: 0; 
+  --NumberOfAppetizers: 0; 
+  --NumberOfDrinks: 0; 
+}
+
+/* Basic Reset */
+.menu-board * {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  line-height: 1.05em;
+}
+
+.menu-board {
+  width: 100vw;
+  height: 96vh;
+  background-color: lightgray;
+  display: flex;
+  flex-direction: column;
+  font-size: 32px;
+}
+
+.menu-board .welcome {
+  width: 100%;
+  height: 12.5%;
+  background-color: #c30000;
+  color: white;
+  text-align: center;
+  padding: 20px;
+}
+
+.menu-board h1 {
+  font-size: 2em;
+}
+
+/* Row formatting */
+.menu-board .row-1,
+.menu-board .row-2 {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+}
+.menu-board .row-1 {
+  height: 50%;
+}
+
+.menu-board .row-2 {
+  height: 37.5%;
+}
+
+/* Default Formatting and Borders for all Sections */
+.menu-board .meal-options, 
+.menu-board .entrees, 
+.menu-board .sides, 
+.menu-board .extras {
+  font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+  border: 5px solid #c30000;
+  border-style: solid;
+  border-radius: 20px;
+  background-color: #f7f7f7;
+  padding: 20px;
+  margin: 20px;
+}
+
+.menu-board h2 {
+  color: #c30000; 
+  height: 20%;
+  text-align: center;
+  text-decoration: underline;
+  font-size: 1.25em
+}
+
+.menu-board .calories {
+  font-size: 0.6em;
+  color: #333;
+}
+
+.menu-board .price {
+  font-size: 0.7em;
+  color: #333;
+  font-style: italic;
+  font-weight: bold;
+}
+
+/* Bracket Formatting */
+.menu-board .bracket-1, 
+.menu-board .bracket-2 {
+  font-size: 7em;
+  color: #c30000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  line-height: 0;
+}
+
+.menu-board .bracket-1 {
+  width: 2.5%;
+  height: calc(100% - 20px);
+  margin-bottom: 20px;
+}
+
+.menu-board .bracket-2 {
+  height: 10%;
+  width: calc(100% - 40px);
+  rotate: 90deg;
+  margin-left: 40px;
+}
+
+/* Meal Options Formatting */
+.menu-board .meal-options {
+  width: calc(25% - 40px);
+  height: calc(100% - 40px);
+}
+
+.menu-board .meal-options .meals-container {
+  width: 100%;
+  height: 80%;
+  overflow-y: hidden;
+  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 1) 5%, rgba(0, 0, 0, 1) 95%, rgba(0, 0, 0, 0));
+}
+
+@keyframes MealScroll {
+  0% {
+    translate: 0 0; /* Starting position */
+  }
+  10% {
+    translate: 0 0; /* Pause at the start */
+  }
+  90% {
+    translate: 0 calc(-100% * (var(--NumberOfMeals) - 3)); /* Start moving to the end */
+  }
+  100% {
+    translate: 0 calc(-100% * (var(--NumberOfMeals) - 3)); /* Pause at the end */
+  }
+}
+
+.menu-board .meal-options .meals-container .meal-slice {
+  width: 100%;
+  height: calc(100%/3);
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+
+  animation-name: MealScroll;
+  animation-duration: calc(7.5s * (var(--NumberOfMeals) - 3));
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+}
+
+.menu-board .meal-options .meals-container .meal-slice img {
+  width: 25%;
+  height: 100%;
+  padding: 10px;
+  font-size: 0.5em;
+  overflow: hidden;
+  object-fit: contain;
+  object-position: center;
+}
+
+.menu-board .meal-options .meals-container .meal-slice .details-container {
+  width: 75%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.menu-board .meal-options .meals-container .meal-slice .details-container .meal-name {
+  font-weight: bold;
+  font-size: 1.1em;
+  color: #c30000;
+}
+
+.menu-board .meal-options .meals-container .meal-slice .details-container .meal-details {
+  color: #555;
+  font-size: 0.7em;
+}
+
+.menu-board .meal-options .meals-container .meal-slice .details-container .price {
+  text-align: right;
+}
+
+/* Entree Formating */
+.menu-board .entrees {
+  width: calc(72.5% - 40px);
+  height: calc(100% - 40px);
+}
+
+.menu-board .entree-grid {
+  width: 100%;
+  height: 80%;
+  display: flex;
+  flex-wrap: wrap;
+  text-align: center;
+  align-items: center;
+  justify-content: center;
+  overflow-y: hidden;
+  overflow-x: hidden;
+  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 1) 5%, rgba(0, 0, 0, 1) 95%, rgba(0, 0, 0, 0));
+}
+
+@keyframes EntreeScroll {
+  0% {
+    translate: 0 0; /* Starting position */
+  }
+  10% {
+    translate: 0 0; /* Pause at the start */
+  }
+  90% {
+    translate: 0 calc(-100% * var(--NumberOfEntreeRows)); /* Start moving to the end */
+  }
+  100% {
+    translate: 0 calc(-100% * var(--NumberOfEntreeRows)); /* Pause at the end */
+  }
+}
+
+.menu-board .entree-grid .entree-slice {
+  display: inline-block;
+  width: 25%;
+  height: 100%;
+
+  animation-name: EntreeScroll;
+  animation-duration: calc(10s * var(--NumberOfEntreeRows));
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+}
+
+.menu-board .entree-grid .entree-slice img {
+  width: 100%;
+  height: 65%;
+  font-size: 0.5em;
+  overflow: hidden;
+  object-fit: contain;
+  object-position: center;
+}
+
+.menu-board .entree-grid .entree-slice .entree-details {
+  width: 100%;
+  height: 35%;
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+}
+
+
+.menu-board .entree-grid .entree-slice .entree-details .entree-name {
+  font-size: 0.85em;
+  font-weight: bold;
+  color: #c30000;
+}
+
+/* Sides Formatting */
+.menu-board .sides-bracket-container {
+  width: 25%;
+  height: 100%;
+}
+
+.menu-board .sides-bracket-container .sides {
+  width: calc(100% - 40px);
+  height: calc(90% - 40px);
+}
+
+.menu-board .sides-bracket-container .sides .sides-container {
+  padding-top: 20px;
+  width: 100%;
+  height: 80%;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  overflow-x: hidden;
+  mask-image: linear-gradient(to left, rgba(0, 0, 0, 0), rgba(0, 0, 0, 1) 5%, rgba(0, 0, 0, 1) 95%, rgba(0, 0, 0, 0));
+}
+
+@keyframes SideScroll {
+  0% {
+    translate: 0 0; /* Starting position */
+  }
+  10% {
+    translate: 0 0; /* Pause at the start */
+  }
+  90% {
+    translate: calc(-100% * (var(--NumberOfSides) - 2)) 0; /* Start moving to the end */
+  }
+  100% {
+    translate: calc(-100% * (var(--NumberOfSides) - 2)) 0; /* Pause at the end */
+  }
+}
+
+.menu-board .sides-bracket-container .sides .sides-container .side-slice {
+  width: 50%;
+  height: 100%;
+  display: inline-block;
+  flex-shrink: 0;
+  text-align: center;
+  align-items: center;
+
+  animation-name: SideScroll;
+  animation-duration: calc(7.5s * (var(--NumberOfSides) - 2));
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+}
+
+.menu-board .sides-bracket-container .sides .sides-container .side-slice .side-name {
+  width: 100%;
+  height: 15%;
+  text-align: center;
+  font-size: 0.75em;
+  font-weight: bold;
+  color: #c30000;
+}
+
+.menu-board .sides-bracket-container .sides .sides-container .side-slice img {
+  width: 100%;
+  height: 65%;
+  overflow: hidden;
+  object-fit: cover;
+  object-position: center;
+}
+
+/* Appetizer/Drinks Formatting */
+.menu-board .extras {
+  width: calc(75% - 40px);
+  height: calc(100% - 40px);
+  display: flex;
+  flex-direction: row;
+}
+
+.menu-board .extras .appetizers {
+  width: 75%;
+  height: 100%;
+  border-right: 2px solid #c30000;
+}
+
+.menu-board .extras .drinks {
+  width: 25%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Appetizer Formatting */
+.menu-board .extras .appetizers .appetizer-container {
+  width: 100%;
+  height: 80%;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  overflow-x: hidden;
+  mask-image: linear-gradient(to left, rgba(0, 0, 0, 0), rgba(0, 0, 0, 1) 2.5%, rgba(0, 0, 0, 1) 97.5%, rgba(0, 0, 0, 0));
+}
+
+@keyframes AppetizerScroll {
+  0% {
+    translate: 0 0; /* Starting position */
+  }
+  10% {
+    translate: 0 0; /* Pause at the start */
+  }
+  90% {
+    translate: calc(-100% * (var(--NumberOfAppetizers) - 4)) 0; /* Start moving to the end */
+  }
+  100% {
+    translate: calc(-100% * (var(--NumberOfAppetizers) - 4)) 0; /* Pause at the end */
+  }
+}
+
+.menu-board .extras .appetizers .appetizer-container .appetizer-slice {
+  width: 25%;
+  height: 100%;
+  flex-shrink: 0;
+  text-align: center;
+
+  animation-name: AppetizerScroll;
+  animation-duration: calc(7.5s * (var(--NumberOfAppetizers) - 4));
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+}
+
+
+.menu-board .extras .appetizers .appetizer-container .appetizer-slice img {
+  font-size: 0.5em;
+  color: #333;
+  width: 100%;
+  height: 60%;
+  overflow: hidden;
+  object-fit: contain;
+  object-position: center;
+}
+
+.menu-board .extras .appetizers .appetizer-container .appetizer-slice .appetizer-name {
+  font-size: 0.85em;
+  font-weight: bold;
+  color: #c30000;
+}
+
+/* Drinks Formatting */
+.menu-board .extras .drinks .drinks-container {
+  width: 100%;
+  height: 80%;
+}
+
+.menu-board .extras .drinks .drinks-container img {
+  width: 100%;
+  height: 60%;
+  overflow: hidden;
+  object-fit: contain;
+  object-position: center;
+}
+
+.menu-board .extras .drinks .drinks-container .drink-options {
+  width: 100%;
+  height: 40%;
+  display: flex;
+  flex-direction: row;
+  text-align: center;
+  overflow-x: hidden;
+  mask-image: linear-gradient(to left, rgba(0, 0, 0, 0), rgba(0, 0, 0, 1) 5%, rgba(0, 0, 0, 1) 95%, rgba(0, 0, 0, 0));
+}
+
+@keyframes DrinkScroll {
+  0% {
+    translate: 0 0; /* Starting position */
+  }
+  10% {
+    translate: 0 0; /* Pause at the start */
+  }
+  90% {
+    translate: calc(-100% * (var(--NumberOfDrinks) - 3)) 0; /* Start moving to the end */
+  }
+  100% {
+    translate: calc(-100% * (var(--NumberOfDrinks) - 3)) 0; /* Pause at the end */
+  }
+}
+
+.menu-board .extras .drinks .drinks-container .drink-slice {
+  height: 100%;
+  width: calc(100%/3);
+  flex-shrink: 0;
+
+  animation-name: DrinkScroll;
+  animation-duration: calc(7.5s * (var(--NumberOfDrinks) - 3));
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+}
+
+.menu-board .extras .drinks .drinks-container .drink-slice .drink-size {
+  font-size: 0.6em;
+  color: #333;
+  text-align: center;
+}
+
+.menu-board .extras .drinks .drinks-container .drink-slice .drink-name {
+  font-size: 0.85em;
+  font-weight: bold;
+  color: #c30000;
+  text-align: center;
+}
