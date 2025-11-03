@@ -1,2 +1,1 @@
-# project-3-63-team
-project-3-63-team created by GitHub Classroom
+A Panda like point of sales system
